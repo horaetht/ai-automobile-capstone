@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Vehicle Symptom Checker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>AI Vehicle Symptom Checker</h1>
+        <p>Enter a car symptom to get a possible issue, urgency level, and next step.</p>
+
+        <form method="POST">
+            <label for="symptom">Describe the symptom:</label>
+            <input type="text" id="symptom" name="symptom" placeholder="e.g. engine light on and car shaking" required>
+            <button type="submit">Check Symptom</button>
+        </form>
+    </div>
+</body>
+</html>
