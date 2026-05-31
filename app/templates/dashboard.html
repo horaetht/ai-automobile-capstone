@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Garage - Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="header-content">
+                <h1 class="site-title">Online Garage <span class="subtitle">with AI Symptom Checker</span></h1>
+                <a href="/" class="home-link">← Home</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-layout">
+
+        <!-- User Profile Card -->
+        <section class="card profile-card">
+            <div class="profile-avatar">AJ</div>
+            <div class="profile-info">
+                <h2 class="profile-name">Alex Johnson</h2>
+                <p class="profile-detail">Member since January 2024</p>
+                <p class="profile-detail">1 vehicle on file</p>
+            </div>
+        </section>
+
+        <!-- Vehicle Info Card -->
+        <section class="card vehicle-card">
+            <h2 class="card-title">My Vehicle</h2>
+            <div class="vehicle-details">
+                <p><span class="label">Make &amp; Model</span><span class="value">2019 Toyota Camry</span></p>
+                <p><span class="label">Color</span><span class="value">Midnight Blue</span></p>
+                <p><span class="label">Mileage</span><span class="value">45,230 miles</span></p>
+                <p><span class="label">Last Service</span><span class="value">March 2025</span></p>
+                <p><span class="label">VIN (demo)</span><span class="value">1T1BF3EK9AU123456</span></p>
+            </div>
+        </section>
+
+        <!-- Vehicle Status Cards -->
+        <section class="status-grid">
+            <h2 class="section-title">Vehicle Status</h2>
+            <div class="status-cards">
+                <div class="status-card status-warning">
+                    <div class="status-icon">&#9888;</div>
+                    <div class="status-label">Oil Change</div>
+                    <div class="status-detail">Due at 46,000 mi</div>
+                </div>
+                <div class="status-card status-good">
+                    <div class="status-icon">&#10003;</div>
+                    <div class="status-label">Tire Rotation</div>
+                    <div class="status-detail">Done 2 months ago</div>
+                </div>
+                <div class="status-card status-good">
+                    <div class="status-icon">&#10003;</div>
+                    <div class="status-label">Battery</div>
+                    <div class="status-detail">Good condition</div>
+                </div>
+                <div class="status-card status-good">
+                    <div class="status-icon">&#10003;</div>
+                    <div class="status-label">Engine Light</div>
+                    <div class="status-detail">No issues detected</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="card actions-card">
+            <h2 class="card-title">Quick Actions</h2>
+            <div class="action-buttons">
+                <a href="/symptom-checker" class="btn btn-primary">AI Symptom Checker</a>
+                <a href="#" class="btn btn-secondary">Maintenance Log <span class="coming-soon">Coming Soon</span></a>
+            </div>
+        </section>
+
+    </main>
+</body>
+</html>

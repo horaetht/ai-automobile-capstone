@@ -24,7 +24,15 @@ def check_symptom(user_input):
         "recommended_next_step": "Please consult a mechanic for further inspection."
     }
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
+def home():
+    return render_template("home.html")
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+@app.route("/symptom-checker", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         symptom = request.form.get("symptom", "")

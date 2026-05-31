@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Garage - AI Vehicle Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <main class="home-layout">
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <h1 class="hero-title">Online Garage</h1>
+            <p class="hero-subtitle">with AI Symptom Checker</p>
+            <p class="hero-description">
+                Manage vehicle issues, check symptoms, and track maintenance records in one place.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="/dashboard" class="btn btn-primary btn-large">Enter Garage</a>
+                <a href="/symptom-checker" class="btn btn-secondary btn-large">AI Symptom Checker</a>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features">
+            <h2 class="section-title">Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🚗</div>
+                    <h3 class="feature-title">Vehicle Dashboard</h3>
+                    <p class="feature-description">
+                        View all your vehicle information in one place. Track mileage, service history, and maintenance status at a glance.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-title">AI Symptom Checker</h3>
+                    <p class="feature-description">
+                        Describe your car's symptoms and get AI-powered analysis with possible issues and recommended next steps.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3 class="feature-title">Maintenance Log</h3>
+                    <p class="feature-description">
+                        Keep track of all maintenance and service records. Coming soon to help you stay on top of preventive care.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Disclaimer -->
+        <section class="disclaimer-section">
+            <div class="disclaimer-box">
+                <p class="disclaimer-text">
+                    <strong>⚠️ Disclaimer:</strong> Online Garage provides general guidance on vehicle maintenance and common symptoms.
+                    This tool does not replace professional mechanic expertise. Always consult a certified mechanic for accurate diagnosis
+                    and repairs, especially for critical vehicle issues.
+                </p>
+            </div>
+        </section>
+
+    </main>
+</body>
+</html>
