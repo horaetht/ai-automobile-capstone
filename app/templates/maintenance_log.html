@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance Log - Online Garage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="header-content">
+                <h1 class="site-title">Maintenance Log</h1>
+                <a href="/" class="home-link">← Home</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="maintenance-layout">
+
+        <!-- Selected Vehicle Card -->
+        <section class="card vehicle-context-card">
+            <h2 class="card-title">Selected Vehicle</h2>
+            <div class="vehicle-context-details">
+                <div class="vehicle-context-item">
+                    <span class="label">Vehicle</span>
+                    <span class="value">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</span>
+                </div>
+                <div class="vehicle-context-item">
+                    <span class="label">Mileage</span>
+                    <span class="value">{{ vehicle.mileage }} mi</span>
+                </div>
+                <div class="vehicle-context-item">
+                    <span class="label">Status</span>
+                    <span class="value status-active">{{ vehicle.status }}</span>
+                </div>
+                <div class="vehicle-context-item">
+                    <span class="label">VIN</span>
+                    <span class="value">{{ vehicle.vin }}</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Maintenance Records Table -->
+        <section class="card records-section">
+            <h2 class="card-title">Service History for {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h2>
+            {% if records %}
+                <div class="table-wrapper">
+                    <table class="maintenance-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Mileage</th>
+                                <th>Service</th>
+                                <th>Parts Replaced</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in records %}
+                                <tr>
+                                    <td>{{ record.Date }}</td>
+                                    <td>{{ record.Mileage }} mi</td>
+                                    <td>{{ record.Description }}</td>
+                                    <td>{{ record["Replaced Parts"] if record["Replaced Parts"] != "None" else "-" }}</td>
+                                    <td>{{ record.Notes }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="empty-state">No maintenance records yet. Add one below to get started.</p>
+            {% endif %}
+        </section>
+
+        <!-- Add New Record Form -->
+        <section class="card add-record-section">
+            <h2 class="card-title">Log New Service</h2>
+            <form method="POST" class="maintenance-form">
+                <div class="form-group">
+                    <label for="date">Service Date *</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="mileage">Mileage (miles) *</label>
+                    <input type="number" id="mileage" name="mileage" placeholder="e.g., 45230" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Service Description *</label>
+                    <input type="text" id="description" name="description" placeholder="e.g., Oil Change, Tire Rotation" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="parts">Parts Replaced</label>
+                    <input type="text" id="parts" name="parts" placeholder="e.g., Oil Filter, Spark Plugs (optional)">
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Additional Notes</label>
+                    <textarea id="notes" name="notes" rows="3" placeholder="Any other details about the service..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Record</button>
+            </form>
+        </section>
+
+        <!-- Quick Links -->
+        <section class="card links-section">
+            <div class="quick-links">
+                <a href="/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+                <a href="/symptom-checker" class="btn btn-secondary">Check Symptoms</a>
+            </div>
+        </section>
+
+    </main>
+</body>
+</html>

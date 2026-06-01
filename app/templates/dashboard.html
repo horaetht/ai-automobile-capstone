@@ -32,37 +32,38 @@
         <section class="card vehicle-card">
             <h2 class="card-title">My Vehicle</h2>
             <div class="vehicle-details">
-                <p><span class="label">Make &amp; Model</span><span class="value">2019 Toyota Camry</span></p>
-                <p><span class="label">Color</span><span class="value">Midnight Blue</span></p>
-                <p><span class="label">Mileage</span><span class="value">45,230 miles</span></p>
-                <p><span class="label">Last Service</span><span class="value">March 2025</span></p>
-                <p><span class="label">VIN (demo)</span><span class="value">1T1BF3EK9AU123456</span></p>
+                <p><span class="label">Make &amp; Model</span><span class="value">2009 BMW 335i</span></p>
+                <p><span class="label">VIN</span><span class="value">DEMO-BMW-335I</span></p>
+                <p><span class="label">Mileage</span><span class="value"><span id="mileage-display">{% if vehicle_data %}{{ vehicle_data.mileage }}{% else %}44,500{% endif %}</span> miles</span></p>
+                <p><span class="label">Last Synced</span><span class="value" id="sync-time">{% if vehicle_data and vehicle_data.last_synced_at %}{{ vehicle_data.last_synced_at }}{% else %}Never{% endif %}</span></p>
             </div>
         </section>
 
-        <!-- Vehicle Status Cards -->
-        <section class="status-grid">
-            <h2 class="section-title">Vehicle Status</h2>
-            <div class="status-cards">
-                <div class="status-card status-warning">
-                    <div class="status-icon">&#9888;</div>
-                    <div class="status-label">Oil Change</div>
-                    <div class="status-detail">Due at 46,000 mi</div>
+        <!-- Vehicle Telemetry Card -->
+        <section class="card telemetry-card">
+            <div class="telemetry-header">
+                <h2 class="card-title">Live Telemetry</h2>
+                <button id="sync-btn" class="btn btn-primary btn-small" onclick="syncVehicleData()">
+                    <span id="sync-btn-text">🔄 Sync Vehicle Data</span>
+                </button>
+            </div>
+            <div id="sync-message" class="sync-message" style="display: none;"></div>
+            <div class="telemetry-grid">
+                <div class="telemetry-item">
+                    <div class="telemetry-label">Battery Voltage</div>
+                    <div class="telemetry-value"><span id="battery-display">{% if vehicle_data %}{{ vehicle_data.battery_voltage }}{% else %}13.8{% endif %}</span>V</div>
                 </div>
-                <div class="status-card status-good">
-                    <div class="status-icon">&#10003;</div>
-                    <div class="status-label">Tire Rotation</div>
-                    <div class="status-detail">Done 2 months ago</div>
+                <div class="telemetry-item">
+                    <div class="telemetry-label">Fuel Level</div>
+                    <div class="telemetry-value"><span id="fuel-display">{% if vehicle_data %}{{ vehicle_data.fuel_level }}{% else %}72{% endif %}</span>%</div>
                 </div>
-                <div class="status-card status-good">
-                    <div class="status-icon">&#10003;</div>
-                    <div class="status-label">Battery</div>
-                    <div class="status-detail">Good condition</div>
+                <div class="telemetry-item">
+                    <div class="telemetry-label">Engine Temperature</div>
+                    <div class="telemetry-value"><span id="temp-display">{% if vehicle_data %}{{ vehicle_data.engine_temperature }}{% else %}185{% endif %}</span>°F</div>
                 </div>
-                <div class="status-card status-good">
-                    <div class="status-icon">&#10003;</div>
-                    <div class="status-label">Engine Light</div>
-                    <div class="status-detail">No issues detected</div>
+                <div class="telemetry-item">
+                    <div class="telemetry-label">Diagnostic Code</div>
+                    <div class="telemetry-value" id="dtc-display">{% if vehicle_data and vehicle_data.dtc_code %}{{ vehicle_data.dtc_code }}{% else %}<span class="dtc-clear">Clear</span>{% endif %}</div>
                 </div>
             </div>
         </section>
@@ -72,10 +73,72 @@
             <h2 class="card-title">Quick Actions</h2>
             <div class="action-buttons">
                 <a href="/symptom-checker" class="btn btn-primary">AI Symptom Checker</a>
-                <a href="#" class="btn btn-secondary">Maintenance Log <span class="coming-soon">Coming Soon</span></a>
+                <a href="/maintenance" class="btn btn-secondary">Maintenance Log</a>
             </div>
         </section>
 
     </main>
+
+    <script>
+        async function syncVehicleData() {
+            const syncBtn = document.getElementById('sync-btn');
+            const syncBtnText = document.getElementById('sync-btn-text');
+            const syncMessage = document.getElementById('sync-message');
+
+            // Disable button and show loading state
+            syncBtn.disabled = true;
+            syncBtnText.textContent = '⏳ Syncing...';
+
+            try {
+                const response = await fetch('/api/vehicles/bmw_335i/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === 'success') {
+                    // Update telemetry display
+                    document.getElementById('mileage-display').textContent = result.data.mileage;
+                    document.getElementById('battery-display').textContent = result.data.battery_voltage;
+                    document.getElementById('fuel-display').textContent = result.data.fuel_level;
+                    document.getElementById('temp-display').textContent = result.data.engine_temperature;
+
+                    // Update DTC display
+                    const dtcDisplay = document.getElementById('dtc-display');
+                    if (result.data.dtc_code) {
+                        dtcDisplay.innerHTML = result.data.dtc_code;
+                        dtcDisplay.classList.add('dtc-error');
+                    } else {
+                        dtcDisplay.innerHTML = '<span class="dtc-clear">Clear</span>';
+                        dtcDisplay.classList.remove('dtc-error');
+                    }
+
+                    // Update last synced time
+                    const lastSyncDate = new Date(result.data.last_synced_at).toLocaleString();
+                    document.getElementById('sync-time').textContent = lastSyncDate;
+
+                    // Show success message
+                    syncMessage.textContent = '✅ Vehicle data synced successfully!';
+                    syncMessage.className = 'sync-message sync-success';
+                    syncMessage.style.display = 'block';
+
+                    setTimeout(() => {
+                        syncMessage.style.display = 'none';
+                    }, 4000);
+                } else {
+                    throw new Error(result.message || 'Sync failed');
+                }
+            } catch (error) {
+                syncMessage.textContent = `❌ Error: ${error.message}`;
+                syncMessage.className = 'sync-message sync-error';
+                syncMessage.style.display = 'block';
+            } finally {
+                // Re-enable button
+                syncBtn.disabled = false;
+                syncBtnText.textContent = '🔄 Sync Vehicle Data';
+            }
+        }
+    </script>
 </body>
 </html>

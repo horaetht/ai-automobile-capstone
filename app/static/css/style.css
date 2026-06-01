@@ -195,6 +195,108 @@ button:hover {
 .status-good { border-top: 4px solid #4caf50; }
 .status-warning { border-top: 4px solid #ff9800; }
 
+/* ── Vehicle Telemetry ── */
+.telemetry-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    border-top: 4px solid #1a73e8;
+}
+
+.telemetry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.telemetry-header .card-title {
+    margin: 0;
+}
+
+.btn-small {
+    padding: 10px 16px;
+    font-size: 13px;
+}
+
+.telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+}
+
+.telemetry-item {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+}
+
+.telemetry-label {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.telemetry-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1a73e8;
+}
+
+.dtc-clear {
+    color: #2e7d32;
+    background-color: #e8f5e9;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.dtc-error {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+/* ── Sync Messages ── */
+.sync-message {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    animation: slideDown 0.3s ease-out;
+}
+
+.sync-success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-left: 4px solid #4caf50;
+}
+
+.sync-error {
+    background-color: #ffebee;
+    color: #d32f2f;
+    border-left: 4px solid #f44336;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#sync-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 /* ── Quick Actions ── */
 .action-buttons {
     display: flex;
@@ -330,6 +432,14 @@ button:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
+.feature-link {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+}
+
 .feature-icon {
     font-size: 48px;
     margin-bottom: 16px;
@@ -390,4 +500,154 @@ button:hover {
 
 .home-link:hover {
     opacity: 1;
+}
+
+/* ── Maintenance Log Layout ── */
+.maintenance-layout {
+    max-width: 960px;
+    margin: 32px auto;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Vehicle Context Card ── */
+.vehicle-context-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    border-top: 4px solid #1a73e8;
+}
+
+.vehicle-context-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+}
+
+.vehicle-context-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.vehicle-context-item .label {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.vehicle-context-item .value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #222;
+}
+
+.status-active {
+    color: #2e7d32;
+    background-color: #e8f5e9;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* ── Maintenance Table ── */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.maintenance-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.maintenance-table thead {
+    background-color: #f9f9f9;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.maintenance-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: bold;
+    color: #333;
+}
+
+.maintenance-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #555;
+}
+
+.maintenance-table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+.empty-state {
+    text-align: center;
+    color: #999;
+    font-size: 15px;
+    padding: 20px 0;
+}
+
+/* ── Maintenance Form ── */
+.maintenance-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.form-group input[type="date"],
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+/* ── Quick Links Section ── */
+.quick-links {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ── Records Section ── */
+.records-section {
+    margin-bottom: 8px;
+}
+
+.add-record-section {
+    margin-bottom: 8px;
+}
+
+.links-section {
+    text-align: center;
 }
