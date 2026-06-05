@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Garage - Online Garage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="header-content">
+                <h1 class="site-title">My Garage</h1>
+                <a href="/" class="home-link">← Home</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-layout">
+
+        <section class="card">
+            <h2 class="card-title">Select a Vehicle</h2>
+            <p style="color:#666; font-size:14px; margin-top:0;">Choose a vehicle to view its dashboard and maintenance history.</p>
+            {% if vehicles %}
+                <div class="vehicle-list">
+                    {% for v in vehicles %}
+                    <div class="vehicle-list-item">
+                        <div class="vehicle-list-info">
+                            <span class="vehicle-list-name">{{ v.year | int }} {{ v.make }} {{ v.model }}</span>
+                            <span class="vehicle-list-meta">{{ v.mileage | int }} miles &nbsp;&middot;&nbsp; ID: {{ v.id }}</span>
+                        </div>
+                        <a href="/dashboard?vehicle_id={{ v.id }}" class="btn btn-primary btn-small">View Dashboard →</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="empty-state">No vehicles found. Add a vehicle to data/vehicles.csv to get started.</p>
+            {% endif %}
+        </section>
+
+    </main>
+</body>
+</html>

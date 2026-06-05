@@ -4,17 +4,6 @@ from app.services.vehicle_sync import SimulatedVehicleDataProvider
 
 app = Flask(__name__)
 
-# Demo vehicle data
-DEMO_VEHICLE = {
-    "id": "bmw_335i",
-    "year": 2009,
-    "make": "BMW",
-    "model": "335i",
-    "mileage": 44500,
-    "status": "Active Garage Vehicle",
-    "vin": "DEMO-BMW-335I"
-}
-
 def load_vehicle(vehicle_id):
     """Load vehicle data from CSV."""
     try:
@@ -78,23 +67,22 @@ def check_symptom(user_input):
         "recommended_next_step": "Please consult a mechanic for further inspection."
     }
 
-def load_maintenance_records():
+def load_maintenance_records(vehicle_id):
     try:
         df = pd.read_csv("data/maintenance_records.csv")
-        # Filter records for the current demo vehicle
-        vehicle_records = df[df["Vehicle_ID"] == DEMO_VEHICLE["id"]]
+        vehicle_records = df[df["Vehicle_ID"] == vehicle_id]
         return vehicle_records.to_dict('records')
     except FileNotFoundError:
         return []
 
-def save_maintenance_record(date, mileage, description, parts, notes):
+def save_maintenance_record(vehicle_id, date, mileage, description, parts, notes):
     try:
         df = pd.read_csv("data/maintenance_records.csv")
     except FileNotFoundError:
         df = pd.DataFrame(columns=["Vehicle_ID", "Date", "Mileage", "Description", "Replaced Parts", "Notes"])
 
     new_record = {
-        "Vehicle_ID": DEMO_VEHICLE["id"],
+        "Vehicle_ID": vehicle_id,
         "Date": date,
         "Mileage": mileage,
         "Description": description,
@@ -108,9 +96,19 @@ def save_maintenance_record(date, mileage, description, parts, notes):
 def home():
     return render_template("home.html")
 
+@app.route("/vehicles")
+def vehicles():
+    try:
+        df = pd.read_csv("data/vehicles.csv")
+        vehicles_list = df.to_dict('records')
+    except FileNotFoundError:
+        vehicles_list = []
+    return render_template("vehicles.html", vehicles=vehicles_list)
+
 @app.route("/dashboard")
 def dashboard():
-    vehicle_data = load_vehicle("bmw_335i")
+    vehicle_id = request.args.get("vehicle_id", "bmw_335i")
+    vehicle_data = load_vehicle(vehicle_id)
     return render_template("dashboard.html", vehicle_data=vehicle_data)
 
 @app.route("/symptom-checker", methods=["GET", "POST"])
@@ -125,6 +123,7 @@ def index():
 @app.route("/maintenance", methods=["GET", "POST"])
 def maintenance():
     if request.method == "POST":
+        vehicle_id = request.form.get("vehicle_id", "bmw_335i")
         date = request.form.get("date", "")
         mileage = request.form.get("mileage", "")
         description = request.form.get("description", "")
@@ -132,22 +131,25 @@ def maintenance():
         notes = request.form.get("notes", "")
 
         if date and mileage and description:
-            save_maintenance_record(date, mileage, description, parts, notes)
+            save_maintenance_record(vehicle_id, date, mileage, description, parts, notes)
+    else:
+        vehicle_id = request.args.get("vehicle_id", "bmw_335i")
 
-    records = load_maintenance_records()
-    vehicle = DEMO_VEHICLE
+    vehicle = load_vehicle(vehicle_id)
+    if vehicle is None:
+        vehicle = {"id": vehicle_id, "year": "Unknown", "make": "Unknown", "model": "Unknown", "mileage": "N/A"}
+    vehicle.setdefault("status", "Active Garage Vehicle")
+    vehicle.setdefault("vin", "N/A")
+
+    records = load_maintenance_records(vehicle_id)
     return render_template("maintenance_log.html", records=records, vehicle=vehicle)
 
 @app.route("/api/vehicles/<vehicle_id>/sync", methods=["POST"])
 def sync_vehicle_data(vehicle_id):
     """API endpoint to sync vehicle telemetry data."""
-    if vehicle_id != "bmw_335i":
-        return jsonify({"error": "Vehicle not found"}), 404
-
-    # Load current vehicle state
     vehicle_data = load_vehicle(vehicle_id)
     if not vehicle_data:
-        return jsonify({"error": "Failed to load vehicle"}), 500
+        return jsonify({"error": "Vehicle not found"}), 404
 
     current_mileage = float(vehicle_data.get("mileage", 0))
     current_fuel = float(vehicle_data.get("fuel_level", 50))
