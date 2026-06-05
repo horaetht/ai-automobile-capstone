@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import pandas as pd
+import re
+import time
 from app.services.vehicle_sync import SimulatedVehicleDataProvider
 
 app = Flask(__name__)
@@ -92,18 +94,59 @@ def save_maintenance_record(vehicle_id, date, mileage, description, parts, notes
     df = pd.concat([df, pd.DataFrame([new_record])], ignore_index=True)
     df.to_csv("data/maintenance_records.csv", index=False)
 
+def create_vehicle_id(year, make, model):
+    raw = f"{make}_{model}_{year}".lower()
+    safe = re.sub(r"[^a-z0-9_]", "_", raw)
+    safe = re.sub(r"_+", "_", safe).strip("_")
+    return f"{safe}_{int(time.time())}"
+
+def save_new_vehicle(vehicle_data):
+    try:
+        df = pd.read_csv("data/vehicles.csv")
+    except FileNotFoundError:
+        df = pd.DataFrame(columns=["id", "year", "make", "model", "mileage", "battery_voltage", "fuel_level", "engine_temperature", "dtc_code", "last_synced_at"])
+    df = pd.concat([df, pd.DataFrame([vehicle_data])], ignore_index=True)
+    df.to_csv("data/vehicles.csv", index=False)
+
 @app.route("/")
 def home():
     return render_template("home.html")
 
-@app.route("/vehicles")
+@app.route("/vehicles", methods=["GET", "POST"])
 def vehicles():
+    error = None
+    if request.method == "POST":
+        year = request.form.get("year", "").strip()
+        make = request.form.get("make", "").strip()
+        model = request.form.get("model", "").strip()
+        mileage = request.form.get("mileage", "").strip()
+        vin = request.form.get("vin", "").strip()
+
+        if not year or not make or not model or not mileage:
+            error = "Year, Make, Model, and Mileage are required."
+        else:
+            vehicle_id = create_vehicle_id(year, make, model)
+            new_vehicle = {
+                "id": vehicle_id,
+                "year": int(year),
+                "make": make,
+                "model": model,
+                "mileage": float(mileage),
+                "battery_voltage": 12.6,
+                "fuel_level": 50,
+                "engine_temperature": 180,
+                "dtc_code": "",
+                "last_synced_at": ""
+            }
+            save_new_vehicle(new_vehicle)
+            return redirect(url_for("vehicles"))
+
     try:
         df = pd.read_csv("data/vehicles.csv")
         vehicles_list = df.to_dict('records')
     except FileNotFoundError:
         vehicles_list = []
-    return render_template("vehicles.html", vehicles=vehicles_list)
+    return render_template("vehicles.html", vehicles=vehicles_list, error=error)
 
 @app.route("/dashboard")
 def dashboard():
