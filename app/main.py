@@ -22,7 +22,7 @@ def save_vehicle(vehicle_data):
     try:
         df = pd.read_csv("data/vehicles.csv")
     except FileNotFoundError:
-        df = pd.DataFrame(columns=["id", "year", "make", "model", "mileage", "battery_voltage", "fuel_level", "engine_temperature", "dtc_code", "last_synced_at"])
+        df = pd.DataFrame(columns=["id", "year", "make", "model", "mileage", "vin", "status", "battery_voltage", "fuel_level", "engine_temperature", "dtc_code", "last_synced_at"])
 
     # Update or insert vehicle record
     df = df[df["id"] != vehicle_data["id"]]
@@ -104,7 +104,7 @@ def save_new_vehicle(vehicle_data):
     try:
         df = pd.read_csv("data/vehicles.csv")
     except FileNotFoundError:
-        df = pd.DataFrame(columns=["id", "year", "make", "model", "mileage", "battery_voltage", "fuel_level", "engine_temperature", "dtc_code", "last_synced_at"])
+        df = pd.DataFrame(columns=["id", "year", "make", "model", "mileage", "vin", "status", "battery_voltage", "fuel_level", "engine_temperature", "dtc_code", "last_synced_at"])
     df = pd.concat([df, pd.DataFrame([vehicle_data])], ignore_index=True)
     df.to_csv("data/vehicles.csv", index=False)
 
@@ -132,6 +132,8 @@ def vehicles():
                 "make": make,
                 "model": model,
                 "mileage": float(mileage),
+                "vin": vin or "N/A",
+                "status": "Active Garage Vehicle",
                 "battery_voltage": 12.6,
                 "fuel_level": 50,
                 "engine_temperature": 180,
@@ -207,6 +209,8 @@ def sync_vehicle_data(vehicle_id):
         "make": vehicle_data["make"],
         "model": vehicle_data["model"],
         "mileage": sync_data["mileage"],
+        "vin": vehicle_data.get("vin", "N/A"),
+        "status": vehicle_data.get("status", "Active Garage Vehicle"),
         "battery_voltage": sync_data["battery_voltage"],
         "fuel_level": sync_data["fuel_level"],
         "engine_temperature": sync_data["engine_temperature"],
