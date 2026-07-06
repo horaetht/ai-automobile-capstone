@@ -11,7 +11,10 @@
         <div class="header-inner">
             <div class="header-content">
                 <h1 class="site-title">Online Garage <span class="subtitle">with AI Symptom Checker</span></h1>
-                <a href="/" class="home-link">← Home</a>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <a href="/vehicles" class="home-link">My Garage</a>
+                    <a href="/" class="home-link">← Home</a>
+                </div>
             </div>
         </div>
     </header>
@@ -32,8 +35,8 @@
         <section class="card vehicle-card">
             <h2 class="card-title">My Vehicle</h2>
             <div class="vehicle-details">
-                <p><span class="label">Make &amp; Model</span><span class="value">2009 BMW 335i</span></p>
-                <p><span class="label">VIN</span><span class="value">DEMO-BMW-335I</span></p>
+                <p><span class="label">Make &amp; Model</span><span class="value">{% if vehicle_data %}{{ vehicle_data.year | int }} {{ vehicle_data.make }} {{ vehicle_data.model }}{% else %}No Vehicle Selected{% endif %}</span></p>
+                <p><span class="label">VIN</span><span class="value">{% if vehicle_data %}{{ vehicle_data.vin | default('N/A') }}{% else %}—{% endif %}</span></p>
                 <p><span class="label">Mileage</span><span class="value"><span id="mileage-display">{% if vehicle_data %}{{ vehicle_data.mileage }}{% else %}44,500{% endif %}</span> miles</span></p>
                 <p><span class="label">Last Synced</span><span class="value" id="sync-time">{% if vehicle_data and vehicle_data.last_synced_at %}{{ vehicle_data.last_synced_at }}{% else %}Never{% endif %}</span></p>
             </div>
@@ -73,13 +76,15 @@
             <h2 class="card-title">Quick Actions</h2>
             <div class="action-buttons">
                 <a href="/symptom-checker" class="btn btn-primary">AI Symptom Checker</a>
-                <a href="/maintenance" class="btn btn-secondary">Maintenance Log</a>
+                <a href="/maintenance{% if vehicle_data %}?vehicle_id={{ vehicle_data.id }}{% endif %}" class="btn btn-secondary">Maintenance Log</a>
             </div>
         </section>
 
     </main>
 
     <script>
+        const vehicleId = "{{ vehicle_data.id if vehicle_data else 'bmw_335i' }}";
+
         async function syncVehicleData() {
             const syncBtn = document.getElementById('sync-btn');
             const syncBtnText = document.getElementById('sync-btn-text');
@@ -90,7 +95,7 @@
             syncBtnText.textContent = '⏳ Syncing...';
 
             try {
-                const response = await fetch('/api/vehicles/bmw_335i/sync', {
+                const response = await fetch(`/api/vehicles/${vehicleId}/sync`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });

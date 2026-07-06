@@ -1,2 +1,3 @@
-id,year,make,model,mileage,battery_voltage,fuel_level,engine_temperature,dtc_code,last_synced_at
-bmw_335i,2009,BMW,335i,44695.0,12.37,39.0,207,P0301,2026-07-06T01:38:02.663615
+id,year,make,model,mileage,vin,status,battery_voltage,fuel_level,engine_temperature,dtc_code,last_synced_at
+bmw_335i,2009,BMW,335i,44859.0,N/A,Active Garage Vehicle,13.25,23.0,194,,2026-06-03T16:44:32.890646
+toyota_supra_2025_1780632434,2025,Toyota,Supra,14017.0,N/A,Active Garage Vehicle,12.62,44.0,181,P0420,2026-06-04T21:07:17.936265

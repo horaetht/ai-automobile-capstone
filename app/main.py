@@ -1,19 +1,10 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import pandas as pd
+import re
+import time
 from app.services.vehicle_sync import SimulatedVehicleDataProvider
 
 app = Flask(__name__)
-
-# Demo vehicle data
-DEMO_VEHICLE = {
-    "id": "bmw_335i",
-    "year": 2009,
-    "make": "BMW",
-    "model": "335i",
-    "mileage": 44500,
-    "status": "Active Garage Vehicle",
-    "vin": "DEMO-BMW-335I"
-}
 
 def load_vehicle(vehicle_id):
     """Load vehicle data from CSV."""
@@ -31,7 +22,7 @@ def save_vehicle(vehicle_data):
     try:
         df = pd.read_csv("data/vehicles.csv")
     except FileNotFoundError:
-        df = pd.DataFrame(columns=["id", "year", "make", "model", "mileage", "battery_voltage", "fuel_level", "engine_temperature", "dtc_code", "last_synced_at"])
+        df = pd.DataFrame(columns=["id", "year", "make", "model", "mileage", "vin", "status", "battery_voltage", "fuel_level", "engine_temperature", "dtc_code", "last_synced_at"])
 
     # Update or insert vehicle record
     df = df[df["id"] != vehicle_data["id"]]
@@ -78,23 +69,22 @@ def check_symptom(user_input):
         "recommended_next_step": "Please consult a mechanic for further inspection."
     }
 
-def load_maintenance_records():
+def load_maintenance_records(vehicle_id):
     try:
         df = pd.read_csv("data/maintenance_records.csv")
-        # Filter records for the current demo vehicle
-        vehicle_records = df[df["Vehicle_ID"] == DEMO_VEHICLE["id"]]
+        vehicle_records = df[df["Vehicle_ID"] == vehicle_id]
         return vehicle_records.to_dict('records')
     except FileNotFoundError:
         return []
 
-def save_maintenance_record(date, mileage, description, parts, notes):
+def save_maintenance_record(vehicle_id, date, mileage, description, parts, notes):
     try:
         df = pd.read_csv("data/maintenance_records.csv")
     except FileNotFoundError:
         df = pd.DataFrame(columns=["Vehicle_ID", "Date", "Mileage", "Description", "Replaced Parts", "Notes"])
 
     new_record = {
-        "Vehicle_ID": DEMO_VEHICLE["id"],
+        "Vehicle_ID": vehicle_id,
         "Date": date,
         "Mileage": mileage,
         "Description": description,
@@ -104,13 +94,66 @@ def save_maintenance_record(date, mileage, description, parts, notes):
     df = pd.concat([df, pd.DataFrame([new_record])], ignore_index=True)
     df.to_csv("data/maintenance_records.csv", index=False)
 
+def create_vehicle_id(year, make, model):
+    raw = f"{make}_{model}_{year}".lower()
+    safe = re.sub(r"[^a-z0-9_]", "_", raw)
+    safe = re.sub(r"_+", "_", safe).strip("_")
+    return f"{safe}_{int(time.time())}"
+
+def save_new_vehicle(vehicle_data):
+    try:
+        df = pd.read_csv("data/vehicles.csv")
+    except FileNotFoundError:
+        df = pd.DataFrame(columns=["id", "year", "make", "model", "mileage", "vin", "status", "battery_voltage", "fuel_level", "engine_temperature", "dtc_code", "last_synced_at"])
+    df = pd.concat([df, pd.DataFrame([vehicle_data])], ignore_index=True)
+    df.to_csv("data/vehicles.csv", index=False)
+
 @app.route("/")
 def home():
     return render_template("home.html")
 
+@app.route("/vehicles", methods=["GET", "POST"])
+def vehicles():
+    error = None
+    if request.method == "POST":
+        year = request.form.get("year", "").strip()
+        make = request.form.get("make", "").strip()
+        model = request.form.get("model", "").strip()
+        mileage = request.form.get("mileage", "").strip()
+        vin = request.form.get("vin", "").strip()
+
+        if not year or not make or not model or not mileage:
+            error = "Year, Make, Model, and Mileage are required."
+        else:
+            vehicle_id = create_vehicle_id(year, make, model)
+            new_vehicle = {
+                "id": vehicle_id,
+                "year": int(year),
+                "make": make,
+                "model": model,
+                "mileage": float(mileage),
+                "vin": vin or "N/A",
+                "status": "Active Garage Vehicle",
+                "battery_voltage": 12.6,
+                "fuel_level": 50,
+                "engine_temperature": 180,
+                "dtc_code": "",
+                "last_synced_at": ""
+            }
+            save_new_vehicle(new_vehicle)
+            return redirect(url_for("vehicles"))
+
+    try:
+        df = pd.read_csv("data/vehicles.csv")
+        vehicles_list = df.to_dict('records')
+    except FileNotFoundError:
+        vehicles_list = []
+    return render_template("vehicles.html", vehicles=vehicles_list, error=error)
+
 @app.route("/dashboard")
 def dashboard():
-    vehicle_data = load_vehicle("bmw_335i")
+    vehicle_id = request.args.get("vehicle_id", "bmw_335i")
+    vehicle_data = load_vehicle(vehicle_id)
     return render_template("dashboard.html", vehicle_data=vehicle_data)
 
 @app.route("/symptom-checker", methods=["GET", "POST"])
@@ -125,6 +168,7 @@ def index():
 @app.route("/maintenance", methods=["GET", "POST"])
 def maintenance():
     if request.method == "POST":
+        vehicle_id = request.form.get("vehicle_id", "bmw_335i")
         date = request.form.get("date", "")
         mileage = request.form.get("mileage", "")
         description = request.form.get("description", "")
@@ -132,22 +176,25 @@ def maintenance():
         notes = request.form.get("notes", "")
 
         if date and mileage and description:
-            save_maintenance_record(date, mileage, description, parts, notes)
+            save_maintenance_record(vehicle_id, date, mileage, description, parts, notes)
+    else:
+        vehicle_id = request.args.get("vehicle_id", "bmw_335i")
 
-    records = load_maintenance_records()
-    vehicle = DEMO_VEHICLE
+    vehicle = load_vehicle(vehicle_id)
+    if vehicle is None:
+        vehicle = {"id": vehicle_id, "year": "Unknown", "make": "Unknown", "model": "Unknown", "mileage": "N/A"}
+    vehicle.setdefault("status", "Active Garage Vehicle")
+    vehicle.setdefault("vin", "N/A")
+
+    records = load_maintenance_records(vehicle_id)
     return render_template("maintenance_log.html", records=records, vehicle=vehicle)
 
 @app.route("/api/vehicles/<vehicle_id>/sync", methods=["POST"])
 def sync_vehicle_data(vehicle_id):
     """API endpoint to sync vehicle telemetry data."""
-    if vehicle_id != "bmw_335i":
-        return jsonify({"error": "Vehicle not found"}), 404
-
-    # Load current vehicle state
     vehicle_data = load_vehicle(vehicle_id)
     if not vehicle_data:
-        return jsonify({"error": "Failed to load vehicle"}), 500
+        return jsonify({"error": "Vehicle not found"}), 404
 
     current_mileage = float(vehicle_data.get("mileage", 0))
     current_fuel = float(vehicle_data.get("fuel_level", 50))
@@ -162,6 +209,8 @@ def sync_vehicle_data(vehicle_id):
         "make": vehicle_data["make"],
         "model": vehicle_data["model"],
         "mileage": sync_data["mileage"],
+        "vin": vehicle_data.get("vin", "N/A"),
+        "status": vehicle_data.get("status", "Active Garage Vehicle"),
         "battery_voltage": sync_data["battery_voltage"],
         "fuel_level": sync_data["fuel_level"],
         "engine_temperature": sync_data["engine_temperature"],

@@ -334,6 +334,11 @@ button:hover {
     background-color: #f0f0f0;
 }
 
+.hero .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
 .coming-soon {
     font-size: 11px;
     background-color: #eee;
@@ -650,4 +655,44 @@ button:hover {
 
 .links-section {
     text-align: center;
+}
+
+/* ── Vehicle Garage List ── */
+.vehicle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.vehicle-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.vehicle-list-item:hover {
+    background-color: #f0f4ff;
+    border-color: #1a73e8;
+}
+
+.vehicle-list-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.vehicle-list-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #222;
+}
+
+.vehicle-list-meta {
+    font-size: 13px;
+    color: #666;
 }

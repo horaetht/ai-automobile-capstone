@@ -11,7 +11,10 @@
         <div class="header-inner">
             <div class="header-content">
                 <h1 class="site-title">Maintenance Log</h1>
-                <a href="/" class="home-link">← Home</a>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <a href="/vehicles" class="home-link">My Garage</a>
+                    <a href="/" class="home-link">← Home</a>
+                </div>
             </div>
         </div>
     </header>
@@ -78,6 +81,7 @@
         <section class="card add-record-section">
             <h2 class="card-title">Log New Service</h2>
             <form method="POST" class="maintenance-form">
+                <input type="hidden" name="vehicle_id" value="{{ vehicle.id }}">
                 <div class="form-group">
                     <label for="date">Service Date *</label>
                     <input type="date" id="date" name="date" required>
@@ -110,7 +114,7 @@
         <!-- Quick Links -->
         <section class="card links-section">
             <div class="quick-links">
-                <a href="/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+                <a href="/dashboard?vehicle_id={{ vehicle.id }}" class="btn btn-secondary">Back to Dashboard</a>
                 <a href="/symptom-checker" class="btn btn-secondary">Check Symptoms</a>
             </div>
         </section>
