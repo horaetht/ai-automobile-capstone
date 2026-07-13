@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Not Found - Online Garage</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="header-content">
+                <h1 class="site-title">Vehicle Not Found</h1>
+                <a href="/" class="home-link">← Home</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-layout">
+        <section class="card">
+            <h2 class="card-title">We couldn't find that vehicle</h2>
+            <p class="empty-state">Vehicle "{{ vehicle_id }}" was not found. It may have been removed, or the link you followed may be incorrect.</p>
+            <a href="/vehicles" class="btn btn-primary">Back to My Garage</a>
+        </section>
+    </main>
+</body>
+</html>
