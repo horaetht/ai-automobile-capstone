@@ -5,12 +5,68 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f6f8;
     color: #333;
     margin: 0;
     padding: 0;
+}
+
+/* ── Accessibility Utilities ── */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background: #1a73e8;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 0 0 6px 0;
+    z-index: 1000;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.skip-link:focus {
+    left: 0;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid #1a73e8;
+    outline-offset: 2px;
+}
+
+.hero a:focus-visible,
+.hero button:focus-visible,
+.landing-nav a:focus-visible,
+.landing-nav button:focus-visible {
+    outline-color: white;
 }
 
 /* ── Symptom checker container (existing pages) ── */
@@ -262,6 +318,13 @@ button:hover {
     font-weight: bold;
 }
 
+.demo-disclaimer {
+    margin: 16px 0 0;
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+}
+
 /* ── Sync Messages ── */
 .sync-message {
     padding: 12px 16px;
@@ -362,6 +425,110 @@ button:disabled {
     background-color: #f4f6f8;
 }
 
+/* ── Landing Page Navigation ── */
+.landing-nav {
+    background-color: #1a73e8;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.landing-nav-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.landing-brand {
+    color: white;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.landing-nav-toggle {
+    display: none;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    font-size: 18px;
+    line-height: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.landing-nav-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.landing-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.landing-nav-links > a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.landing-nav-links > a:hover {
+    opacity: 1;
+}
+
+.landing-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .landing-nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .landing-nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding-top: 16px;
+    }
+
+    .landing-nav-links.is-open {
+        display: flex;
+    }
+
+    .landing-nav-actions {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .landing-nav-actions .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .landing-nav-inner {
+        flex-wrap: wrap;
+    }
+}
+
 /* ── Hero Section ── */
 .hero {
     background: linear-gradient(135deg, #1a73e8 0%, #1558b0 100%);
@@ -427,6 +594,15 @@ button:disabled {
     color: #222;
 }
 
+.section-subtitle {
+    text-align: center;
+    color: #666;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 620px;
+    margin: -24px auto 40px;
+}
+
 .feature-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -475,6 +651,81 @@ button:disabled {
     margin: 0;
 }
 
+/* ── How It Works Steps ── */
+.step-card {
+    text-align: center;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #1a73e8;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    margin: 0 auto 16px;
+}
+
+/* ── Symptom Checker Preview ── */
+.symptom-preview-card {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.symptom-preview-result {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.symptom-preview-locked {
+    background-color: #fff8f0;
+    border-left: 4px solid #ff9800;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #855400;
+    margin: 12px 0 16px;
+}
+
+/* ── Landing Page Footer ── */
+.landing-footer {
+    background-color: #1a1a1a;
+    color: #ccc;
+    padding: 24px;
+}
+
+.landing-footer-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 13px;
+}
+
+.landing-footer-links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.landing-footer-links a {
+    color: #ccc;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.landing-footer-links a:hover {
+    color: white;
+}
+
 /* ── Disclaimer Section ── */
 .disclaimer-section {
     background-color: #fff8f0;
@@ -517,6 +768,20 @@ button:disabled {
 
 .home-link:hover {
     opacity: 1;
+}
+
+.header-account {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 8px;
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.header-user-email {
+    color: white;
+    font-size: 13px;
+    opacity: 0.9;
 }
 
 /* ── Maintenance Log Layout ── */
@@ -630,12 +895,16 @@ button:disabled {
 .form-group input[type="date"],
 .form-group input[type="text"],
 .form-group input[type="number"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group select,
 .form-group textarea {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 6px;
     font-family: Arial, sans-serif;
     font-size: 14px;
+    background-color: white;
 }
 
 .form-group textarea {
@@ -643,10 +912,81 @@ button:disabled {
 }
 
 .form-group input:focus,
+.form-group select:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: #1a73e8;
     box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+/* ── Password Requirements Checklist ── */
+.password-requirements {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.password-requirement {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #999;
+    transition: color 0.2s;
+}
+
+.password-requirement.is-valid {
+    color: #2e7d32;
+}
+
+.requirement-icon {
+    font-size: 13px;
+    width: 16px;
+    text-align: center;
+}
+
+.password-hint {
+    font-size: 12px;
+    color: #999;
+    margin: 8px 0 0;
+    line-height: 1.5;
+}
+
+/* ── Auth Pages (Login / Signup) ── */
+.auth-card {
+    max-width: 420px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.form-error {
+    color: #d32f2f;
+    background-color: #ffebee;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border-left: 4px solid #f44336;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.form-success {
+    color: #2e7d32;
+    background-color: #e8f5e9;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border-left: 4px solid #4caf50;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.form-links {
+    margin: 16px 0 0;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
 }
 
 /* ── Quick Links Section ── */
