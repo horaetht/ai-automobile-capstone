@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Header from '../components/Header'
 import VehicleCard from '../components/VehicleCard'
 import { useAuth } from '../context/useAuth'
-import { createVehicle, getVehicles } from '../services/vehicleService'
+import { createVehicle, deleteVehicle, getVehicles } from '../services/vehicleService'
 
 const emptyForm = { year: '', make: '', model: '', mileage: '', vin: '' }
 
@@ -13,6 +13,7 @@ function GaragePage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
   const [form, setForm] = useState(emptyForm)
+  const [deletingVehicleId, setDeletingVehicleId] = useState(null)
   const isMounted = useRef(true)
 
   useEffect(() => {
@@ -72,6 +73,28 @@ function GaragePage() {
     }
   }
 
+  const handleDeleteVehicle = async (vehicle) => {
+    if (deletingVehicleId) return
+
+    const confirmed = window.confirm(
+      `Delete ${vehicle.year} ${vehicle.make} ${vehicle.model}? This action cannot be undone.`,
+    )
+    if (!confirmed) return
+
+    setError(null)
+    setDeletingVehicleId(vehicle.id)
+    try {
+      await deleteVehicle(vehicle.id)
+      setVehicles((currentVehicles) =>
+        currentVehicles.filter((currentVehicle) => currentVehicle.id !== vehicle.id),
+      )
+    } catch (err) {
+      setError(`Unable to delete vehicle: ${err.message || 'Unknown error.'}`)
+    } finally {
+      setDeletingVehicleId(null)
+    }
+  }
+
   return (
     <>
       <Header title="My Garage" showGarageLink={false} />
@@ -85,8 +108,14 @@ function GaragePage() {
             <p className="empty-state">Loading vehicles...</p>
           ) : vehicles.length > 0 ? (
             <div className="vehicle-list">
-              {vehicles.map((v) => (
-                <VehicleCard key={v.id} vehicle={v} />
+              {vehicles.map((vehicle) => (
+                <VehicleCard
+                  key={vehicle.id}
+                  vehicle={vehicle}
+                  onDelete={() => handleDeleteVehicle(vehicle)}
+                  isDeleting={deletingVehicleId === vehicle.id}
+                  deleteDisabled={deletingVehicleId !== null}
+                />
               ))}
             </div>
           ) : (
