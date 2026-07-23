@@ -1,45 +1,75 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Header from '../components/Header'
 import VehicleCard from '../components/VehicleCard'
-import { vehicles as initialVehicles, addVehicle, createVehicleId } from '../data/mockData'
+import { useAuth } from '../context/useAuth'
+import { createVehicle, getVehicles } from '../services/vehicleService'
 
 const emptyForm = { year: '', make: '', model: '', mileage: '', vin: '' }
 
 function GaragePage() {
-  const [vehicles, setVehicles] = useState(initialVehicles)
+  const { user } = useAuth()
+  const [vehicles, setVehicles] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
   const [form, setForm] = useState(emptyForm)
+  const isMounted = useRef(true)
+
+  useEffect(() => {
+    isMounted.current = true
+
+    const loadVehicles = async () => {
+      setLoading(true)
+      try {
+        const data = await getVehicles()
+        if (!isMounted.current) return
+        setVehicles(data)
+      } catch (err) {
+        if (!isMounted.current) return
+        setError(err.message || 'Failed to load vehicles.')
+      } finally {
+        if (isMounted.current) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadVehicles()
+
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    if (submitting) return
+
     if (!form.year || !form.make || !form.model || !form.mileage) {
       setError('Please fill in all required fields.')
       return
     }
 
-    const newVehicle = {
-      id: createVehicleId(form.make, form.model, form.year),
-      year: Number(form.year),
-      make: form.make,
-      model: form.model,
-      mileage: Number(form.mileage),
-      vin: form.vin,
-      status: 'Active Garage Vehicle',
-      battery_voltage: 12.6,
-      fuel_level: 50,
-      engine_temperature: 180,
-      dtc_code: '',
-      last_synced_at: '',
+    if (!user?.id) {
+      setError('You must be signed in to add a vehicle.')
+      return
     }
 
-    addVehicle(newVehicle)
-    setVehicles([...vehicles, newVehicle])
-    setForm(emptyForm)
     setError(null)
+    setSubmitting(true)
+    try {
+      const newVehicle = await createVehicle(form, user.id)
+      setVehicles((currentVehicles) => [newVehicle, ...currentVehicles])
+      setForm(emptyForm)
+    } catch (err) {
+      setError(err.message || 'Failed to add vehicle.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -51,7 +81,9 @@ function GaragePage() {
           <p style={{ color: '#666', fontSize: 14, marginTop: 0 }}>
             Choose a vehicle to view its dashboard and maintenance history.
           </p>
-          {vehicles.length > 0 ? (
+          {loading ? (
+            <p className="empty-state">Loading vehicles...</p>
+          ) : vehicles.length > 0 ? (
             <div className="vehicle-list">
               {vehicles.map((v) => (
                 <VehicleCard key={v.id} vehicle={v} />
@@ -144,8 +176,8 @@ function GaragePage() {
                 onChange={handleChange}
               />
             </div>
-            <button type="submit" className="btn btn-primary">
-              Add Vehicle
+            <button type="submit" className="btn btn-primary" disabled={submitting}>
+              {submitting ? 'Adding Vehicle...' : 'Add Vehicle'}
             </button>
           </form>
         </section>

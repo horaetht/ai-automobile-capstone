@@ -1,12 +1,71 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Header from '../components/Header'
 import TelemetryCard from '../components/TelemetryCard'
-import { findVehicleById, mockSyncVehicle } from '../data/mockData'
+import { getVehicleById } from '../services/vehicleService'
 
 function DashboardPage() {
   const { vehicleId } = useParams()
-  const [vehicle, setVehicle] = useState(() => findVehicleById(vehicleId))
+  const [vehicle, setVehicle] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const isMounted = useRef(true)
+
+  useEffect(() => {
+    isMounted.current = true
+
+    const loadVehicle = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const data = await getVehicleById(vehicleId)
+        if (!isMounted.current) return
+        setVehicle(data)
+      } catch (err) {
+        if (!isMounted.current) return
+        setError(err.message || 'Failed to load vehicle.')
+      } finally {
+        if (isMounted.current) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadVehicle()
+
+    return () => {
+      isMounted.current = false
+    }
+  }, [vehicleId])
+
+  if (loading) {
+    return (
+      <>
+        <Header title="Online Garage" subtitle="with AI Symptom Checker" />
+        <main className="dashboard-layout">
+          <section className="card">
+            <p className="empty-state">Loading vehicle...</p>
+          </section>
+        </main>
+      </>
+    )
+  }
+
+  if (error) {
+    return (
+      <>
+        <Header title="Online Garage" subtitle="with AI Symptom Checker" />
+        <main className="dashboard-layout">
+          <section className="card">
+            <h2 className="card-title">Something Went Wrong</h2>
+            <p className="empty-state">
+              Unable to load vehicle: {error} <Link to="/garage">Return to My Garage</Link>.
+            </p>
+          </section>
+        </main>
+      </>
+    )
+  }
 
   if (!vehicle) {
     return (
@@ -24,21 +83,17 @@ function DashboardPage() {
     )
   }
 
-  const handleSync = () => {
-    const updated = mockSyncVehicle(vehicle.id)
-    setVehicle({ ...updated })
-  }
-
   return (
     <>
       <Header title="Online Garage" subtitle="with AI Symptom Checker" />
       <main className="dashboard-layout">
         <section className="card profile-card">
-          <div className="profile-avatar">AJ</div>
+          <div className="profile-avatar">🚗</div>
           <div className="profile-info">
-            <h2 className="profile-name">Alex Johnson</h2>
-            <p className="profile-detail">Member since January 2024</p>
-            <p className="profile-detail">1 vehicle on file</p>
+            <h2 className="profile-name">Vehicle Overview</h2>
+            <p className="profile-detail">
+              {vehicle.year} {vehicle.make} {vehicle.model}
+            </p>
           </div>
         </section>
 
@@ -57,7 +112,7 @@ function DashboardPage() {
             </p>
             <p>
               <span className="label">Mileage</span>
-              <span className="value">{vehicle.mileage.toLocaleString()} miles</span>
+              <span className="value">{Number(vehicle.mileage).toLocaleString()} miles</span>
             </p>
             <p>
               <span className="label">Last Synced</span>
@@ -68,7 +123,7 @@ function DashboardPage() {
           </div>
         </section>
 
-        <TelemetryCard vehicle={vehicle} onSync={handleSync} />
+        <TelemetryCard vehicle={vehicle} />
 
         <section className="card actions-card">
           <h2 className="card-title">Quick Actions</h2>
