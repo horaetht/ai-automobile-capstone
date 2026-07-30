@@ -32,7 +32,11 @@ function SignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.email || !form.password) {
+    if (loading) return
+
+    const normalizedEmail = form.email.trim().toLowerCase()
+
+    if (!normalizedEmail || !form.password) {
       setError('Please enter an email and password.')
       return
     }
@@ -44,21 +48,31 @@ function SignupPage() {
     setError(null)
     setMessage(null)
     setLoading(true)
-    const { data, error: signUpError } = await signUp(form.email, form.password)
-    setLoading(false)
+    try {
+      const { data, error: signUpError } = await signUp(normalizedEmail, form.password)
 
-    if (signUpError) {
-      setError(signUpError.message)
-      return
+      if (signUpError) {
+        setError(signUpError.message)
+        return
+      }
+
+      if (data.session) {
+        navigate('/garage', { replace: true })
+        return
+      }
+
+      setMessage(
+        'If this email can be registered, check your inbox for a confirmation link. If you already have an account, log in instead.',
+      )
+      setForm({ email: normalizedEmail, password: '' })
+    } catch (err) {
+      setError(err instanceof Error
+        ? err.message 
+        : 'Something went wrong. Please try again.'
+      )
+    } finally {
+      setLoading(false)
     }
-
-    if (data.session) {
-      navigate('/garage', { replace: true })
-      return
-    }
-
-    setMessage('Account created. Check your email to confirm your account before logging in.')
-    setForm(emptyForm)
   }
 
   return (
@@ -79,6 +93,7 @@ function SignupPage() {
                 placeholder="you@example.com"
                 value={form.email}
                 onChange={handleChange}
+                autoComplete="email"
                 required
               />
             </div>
@@ -92,6 +107,7 @@ function SignupPage() {
                 value={form.password}
                 onChange={handleChange}
                 aria-describedby="password-requirements"
+                autoComplete="new-password"
                 required
               />
               <ul className="password-requirements" id="password-requirements" aria-live="polite">
