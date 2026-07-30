@@ -919,6 +919,74 @@ button:disabled {
     box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
 }
 
+/* ── Manufacturer Combobox (Garage "Add New Vehicle" form) ── */
+.make-combobox {
+    position: relative;
+}
+
+.make-combobox input {
+    width: 100%;
+}
+
+.make-combobox-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    margin-top: 4px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.make-suggestion-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    background-color: white;
+    border: none;
+    border-radius: 0;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    color: #333;
+    cursor: pointer;
+}
+
+.make-suggestion-option:first-child {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.make-suggestion-option:last-child {
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.make-suggestion-option:hover,
+.make-suggestion-option.is-highlighted {
+    background-color: #f0f4ff;
+    color: #1a73e8;
+}
+
+.make-combobox-empty {
+    padding: 10px 12px;
+    margin: 0;
+    font-size: 13px;
+    color: #999;
+}
+
+@media (max-width: 600px) {
+    .make-combobox-suggestions {
+        max-height: 180px;
+    }
+}
+
 /* ── Password Requirements Checklist ── */
 .password-requirements {
     list-style: none;
