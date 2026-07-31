@@ -987,6 +987,90 @@ button:disabled {
     }
 }
 
+/* ── VIN Decode Panel (Garage "Add New Vehicle" form) ── */
+.vin-decode-panel {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vin-decode-actions {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.vin-decode-actions input {
+    flex: 1;
+    min-width: 0;
+}
+
+.vin-decode-actions button {
+    flex-shrink: 0;
+}
+
+.vin-decode-summary {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.vin-decode-status {
+    color: #2e7d32;
+    background-color: #e8f5e9;
+    border-left: 4px solid #4caf50;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0 0 12px;
+}
+
+.vin-decode-warning {
+    color: #855400;
+    background-color: #fff8f0;
+    border-left: 4px solid #ff9800;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0 0 12px;
+}
+
+.vin-decode-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px 16px;
+}
+
+.vin-decode-details p {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 0;
+    font-size: 14px;
+}
+
+@media (max-width: 600px) {
+    .vin-decode-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .vin-decode-actions button {
+        width: 100%;
+    }
+
+    .vin-decode-details {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ── Password Requirements Checklist ── */
 .password-requirements {
     list-style: none;
