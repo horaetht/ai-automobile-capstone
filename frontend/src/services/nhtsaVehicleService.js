@@ -185,6 +185,72 @@ export async function getModelsForMakeIdYear(makeId, year) {
   return normalizedModels
 }
 
+const VIN_LENGTH = 17
+// VINs never contain I, O, or Q (to avoid confusion with 1 and 0).
+const VIN_PATTERN = /^[A-HJ-NPR-Z0-9]{17}$/
+
+function trimmedOrEmpty(value) {
+  return typeof value === 'string' ? value.trim() : ''
+}
+
+function combineNonEmptyValues(values) {
+  return values
+    .map(trimmedOrEmpty)
+    .filter((value) => value !== '')
+    .join(' ')
+}
+
+// DecodeVinValues always returns a single Results[0] object, even for a
+// VIN NHTSA can't fully verify — a non-zero ErrorCode is not a request
+// failure, so it must not throw. Only request/network/format problems throw.
+export async function decodeVin(vin) {
+  if (typeof vin !== 'string' || !vin.trim()) {
+    throw new Error('A VIN is required.')
+  }
+
+  const normalizedVin = vin.trim().toUpperCase()
+
+  if (normalizedVin.length !== VIN_LENGTH) {
+    throw new Error('VIN must be exactly 17 characters.')
+  }
+  if (!VIN_PATTERN.test(normalizedVin)) {
+    throw new Error('VIN contains invalid characters.')
+  }
+
+  const endpoint = `/DecodeVinValues/${encodeURIComponent(normalizedVin)}`
+  const results = await fetchNhtsa(endpoint)
+  const result = results[0]
+
+  if (!result) {
+    throw new Error('The NHTSA vehicle service returned an unexpected response.')
+  }
+
+  const year = trimmedOrEmpty(result.ModelYear)
+  const make = trimmedOrEmpty(result.Make)
+  const model = trimmedOrEmpty(result.Model)
+  const errorCode = trimmedOrEmpty(result.ErrorCode)
+
+  const isClean = errorCode === '' || errorCode === '0'
+  const hasCoreVehicleData = year !== '' && make !== '' && model !== ''
+
+  return {
+    vin: normalizedVin,
+    year,
+    make,
+    model,
+    series: combineNonEmptyValues([result.Series, result.Series2]),
+    trim: combineNonEmptyValues([result.Trim, result.Trim2]),
+    engineCylinders: trimmedOrEmpty(result.EngineCylinders),
+    displacementLiters: trimmedOrEmpty(result.DisplacementL),
+    fuelType: trimmedOrEmpty(result.FuelTypePrimary),
+    driveType: trimmedOrEmpty(result.DriveType),
+    errorCode,
+    errorText: trimmedOrEmpty(result.ErrorText),
+    isClean,
+    hasCoreVehicleData,
+  }
+}
+
 export async function getModelsForMakeYear(make, year) {
   if (typeof make !== 'string' || !make.trim()) {
     throw new Error('A vehicle make is required.')
