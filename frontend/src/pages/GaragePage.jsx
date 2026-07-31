@@ -3,7 +3,7 @@ import Header from '../components/Header'
 import VehicleCard from '../components/VehicleCard'
 import { useAuth } from '../context/useAuth'
 import { createVehicle, deleteVehicle, getVehicles } from '../services/vehicleService'
-import { getCommonRoadVehicleMakes, getModelsForMakeIdYear } from '../services/nhtsaVehicleService'
+import { getCommonRoadVehicleMakes, getModelsForMakeIdYear, decodeVin } from '../services/nhtsaVehicleService'
 
 const emptyForm = { year: '', make: '', model: '', mileage: '', vin: '' }
 const MIN_DATABASE_YEAR = 1996
@@ -56,6 +56,10 @@ function GaragePage() {
   const [highlightedSuggestionIndex, setHighlightedSuggestionIndex] = useState(-1)
   const makeInputRef = useRef(null)
 
+  const [vinDecoding, setVinDecoding] = useState(false)
+  const [vinDecodeError, setVinDecodeError] = useState(null)
+  const [decodedVehicle, setDecodedVehicle] = useState(null)
+
   const currentYear = new Date().getFullYear()
   const maxYear = currentYear + 1
 
@@ -81,6 +85,22 @@ function GaragePage() {
     if (modelsLoadFailed) return 'Unable to load models'
     if (models.length === 0) return 'No models found'
     return 'Select model'
+  })()
+
+  const decodedEngineSummary = (() => {
+    if (!decodedVehicle) return ''
+    const parts = []
+    if (decodedVehicle.engineCylinders) {
+      parts.push(`${decodedVehicle.engineCylinders} cylinders`)
+    }
+    if (decodedVehicle.displacementLiters) {
+      const displacementNumber = Number(decodedVehicle.displacementLiters)
+      const displacementText = Number.isFinite(displacementNumber)
+        ? displacementNumber.toFixed(1)
+        : decodedVehicle.displacementLiters
+      parts.push(`${displacementText} L`)
+    }
+    return parts.join(', ')
   })()
 
   useEffect(() => {
@@ -271,6 +291,53 @@ function GaragePage() {
     setVehicleDataError(null)
   }
 
+  const handleVinChange = (e) => {
+    const newVin = e.target.value.toUpperCase()
+    setForm((prev) => ({ ...prev, vin: newVin }))
+    setVinDecodeError(null)
+    setDecodedVehicle(null)
+  }
+
+  const handleDecodeVin = async () => {
+    if (vinDecoding) return
+
+    setVinDecodeError(null)
+    setDecodedVehicle(null)
+    setVinDecoding(true)
+
+    try {
+      const result = await decodeVin(form.vin)
+      if (!isMounted.current) return
+      setDecodedVehicle(result)
+
+      if (result.hasCoreVehicleData) {
+        setManualEntry(true)
+        setForm((prev) => ({
+          ...prev,
+          vin: result.vin,
+          year: result.year,
+          make: formatMakeDisplayName(result.make),
+          model: result.model,
+        }))
+        setSelectedMakeId(null)
+        setModels([])
+        setModelsLoadFailed(false)
+        setVehicleDataError(null)
+        setSuggestionsDismissed(false)
+        setHighlightedSuggestionIndex(-1)
+      }
+    } catch (err) {
+      if (!isMounted.current) return
+      setVinDecodeError(
+        err instanceof Error ? err.message : 'Unable to decode this VIN.',
+      )
+    } finally {
+      if (isMounted.current) {
+        setVinDecoding(false)
+      }
+    }
+  }
+
   const handleToggleEntryMode = () => {
     setVehicleDataError(null)
     setModels([])
@@ -278,6 +345,8 @@ function GaragePage() {
     setSelectedMakeId(null)
     setSuggestionsDismissed(false)
     setHighlightedSuggestionIndex(-1)
+    setDecodedVehicle(null)
+    setVinDecodeError(null)
 
     setForm((prev) => {
       const next = { ...prev, make: '', model: '' }
@@ -346,6 +415,8 @@ function GaragePage() {
       setVehicleDataError(null)
       setSelectedMakeId(null)
       setSuggestionsDismissed(false)
+      setDecodedVehicle(null)
+      setVinDecodeError(null)
     } catch (err) {
       setError(err.message || 'Failed to add vehicle.')
     } finally {
@@ -430,6 +501,94 @@ function GaragePage() {
             {manualEntry ? 'Use vehicle database' : 'Cannot find your vehicle? Enter manually'}
           </button>
           <form className="maintenance-form" onSubmit={handleSubmit}>
+            <div className="vin-decode-panel">
+              <div className="form-group">
+                <label htmlFor="vin">
+                  VIN <span style={{ fontWeight: 'normal', color: '#999' }}>(optional)</span>
+                </label>
+                <div className="vin-decode-actions">
+                  <input
+                    type="text"
+                    id="vin"
+                    name="vin"
+                    placeholder="e.g., 1HGBH41JXMN109186"
+                    value={form.vin}
+                    onChange={handleVinChange}
+                    maxLength={17}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-small"
+                    onClick={handleDecodeVin}
+                    disabled={vinDecoding || submitting}
+                  >
+                    {vinDecoding ? 'Decoding VIN...' : 'Decode VIN'}
+                  </button>
+                </div>
+              </div>
+
+              {vinDecodeError && (
+                <p className="form-error" role="alert">
+                  {vinDecodeError}
+                </p>
+              )}
+
+              {decodedVehicle && (
+                <div className="vin-decode-summary">
+                  <p className={decodedVehicle.isClean && decodedVehicle.hasCoreVehicleData ? 'vin-decode-status' : 'vin-decode-warning'}>
+                    {!decodedVehicle.hasCoreVehicleData
+                      ? 'No complete vehicle match was found. Use the vehicle database or manual entry instead.'
+                      : !decodedVehicle.isClean
+                        ? 'NHTSA could not fully verify this VIN. Review the decoded details before adding the vehicle.'
+                        : 'VIN decoded successfully. Review the details below before adding the vehicle.'}
+                  </p>
+                  <div className="vin-decode-details">
+                    {decodedVehicle.year && (
+                      <p>
+                        <span className="label">Year</span> <span className="value">{decodedVehicle.year}</span>
+                      </p>
+                    )}
+                    {decodedVehicle.make && (
+                      <p>
+                        <span className="label">Make</span>{' '}
+                        <span className="value">{formatMakeDisplayName(decodedVehicle.make)}</span>
+                      </p>
+                    )}
+                    {decodedVehicle.model && (
+                      <p>
+                        <span className="label">Model</span> <span className="value">{decodedVehicle.model}</span>
+                      </p>
+                    )}
+                    {decodedVehicle.series && (
+                      <p>
+                        <span className="label">Series</span> <span className="value">{decodedVehicle.series}</span>
+                      </p>
+                    )}
+                    {decodedVehicle.trim && (
+                      <p>
+                        <span className="label">Trim</span> <span className="value">{decodedVehicle.trim}</span>
+                      </p>
+                    )}
+                    {decodedEngineSummary && (
+                      <p>
+                        <span className="label">Engine</span> <span className="value">{decodedEngineSummary}</span>
+                      </p>
+                    )}
+                    {decodedVehicle.fuelType && (
+                      <p>
+                        <span className="label">Fuel Type</span> <span className="value">{decodedVehicle.fuelType}</span>
+                      </p>
+                    )}
+                    {decodedVehicle.driveType && (
+                      <p>
+                        <span className="label">Drive Type</span> <span className="value">{decodedVehicle.driveType}</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             {vehicleDataError && (
               <p className="form-error" role="alert">
                 {vehicleDataError}
@@ -584,19 +743,6 @@ function GaragePage() {
                 value={form.mileage}
                 onChange={handleChange}
                 required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="vin">
-                VIN <span style={{ fontWeight: 'normal', color: '#999' }}>(optional)</span>
-              </label>
-              <input
-                type="text"
-                id="vin"
-                name="vin"
-                placeholder="e.g., 1HGBH41JXMN109186"
-                value={form.vin}
-                onChange={handleChange}
               />
             </div>
             <button type="submit" className="btn btn-primary" disabled={submitting}>
