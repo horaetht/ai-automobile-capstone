@@ -57,7 +57,7 @@ function SignupPage() {
       }
 
       if (data.session) {
-        navigate('/garage', { replace: true })
+        navigate('/home', { replace: true })
         return
       }
 

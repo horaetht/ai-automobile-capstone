@@ -1203,6 +1203,43 @@ button:disabled {
     color: #666;
 }
 
+/* ── Authenticated Home Dashboard ── */
+.vehicle-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.vehicle-summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.vehicle-summary-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #222;
+}
+
+.vehicle-summary-details p {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    .vehicle-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ── Responsive tweaks ── */
 @media (max-width: 600px) {
     .hero-title {
