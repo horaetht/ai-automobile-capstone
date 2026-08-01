@@ -1,0 +1,1299 @@
+/* Ported from app/static/css/style.css to preserve the Online Garage visual design in React. */
+
+/* ── Base ── */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* ── Accessibility Utilities ── */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    background: #1a73e8;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 0 0 6px 0;
+    z-index: 1000;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.skip-link:focus {
+    left: 0;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid #1a73e8;
+    outline-offset: 2px;
+}
+
+.hero a:focus-visible,
+.hero button:focus-visible,
+.landing-nav a:focus-visible,
+.landing-nav button:focus-visible {
+    outline-color: white;
+}
+
+/* ── Symptom checker container (existing pages) ── */
+.container {
+    max-width: 700px;
+    margin: 60px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    margin-top: 0;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    margin: 12px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+button {
+    padding: 10px 16px;
+    cursor: pointer;
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+button:hover {
+    background-color: #1558b0;
+}
+
+/* ── Site Header ── */
+.site-header {
+    background-color: #1a73e8;
+    color: white;
+    padding: 16px 24px;
+}
+
+.header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.site-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.site-title .subtitle {
+    font-size: 14px;
+    font-weight: normal;
+    opacity: 0.85;
+    margin-left: 8px;
+}
+
+/* ── Dashboard Layout ── */
+.dashboard-layout {
+    max-width: 960px;
+    margin: 32px auto;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Cards ── */
+.card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+}
+
+.card-title {
+    margin-top: 0;
+    font-size: 18px;
+    color: #222;
+}
+
+/* ── Profile Card ── */
+.profile-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-avatar {
+    width: 60px;
+    height: 60px;
+    background-color: #1a73e8;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.profile-name {
+    margin: 0 0 4px 0;
+    font-size: 20px;
+}
+
+.profile-detail {
+    margin: 2px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* ── Vehicle Details ── */
+.vehicle-details p {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    font-size: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 6px;
+}
+
+.vehicle-details p:last-child {
+    border-bottom: none;
+}
+
+.label {
+    color: #666;
+}
+
+.value {
+    font-weight: bold;
+    color: #222;
+}
+
+/* ── Status Grid ── */
+.section-title {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    color: #222;
+}
+
+.status-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.status-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px 16px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+}
+
+.status-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.status-label {
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.status-detail {
+    font-size: 13px;
+    color: #666;
+}
+
+.status-good .status-icon { color: #2e7d32; }
+.status-warning .status-icon { color: #e65100; }
+.status-good { border-top: 4px solid #4caf50; }
+.status-warning { border-top: 4px solid #ff9800; }
+
+/* ── Vehicle Telemetry ── */
+.telemetry-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    border-top: 4px solid #1a73e8;
+}
+
+.telemetry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.telemetry-header .card-title {
+    margin: 0;
+}
+
+.btn-small {
+    padding: 10px 16px;
+    font-size: 13px;
+}
+
+.telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+}
+
+.telemetry-item {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+}
+
+.telemetry-label {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.telemetry-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1a73e8;
+}
+
+.dtc-clear {
+    color: #2e7d32;
+    background-color: #e8f5e9;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+.dtc-error {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.demo-disclaimer {
+    margin: 16px 0 0;
+    font-size: 12px;
+    color: #999;
+    text-align: center;
+}
+
+/* ── Sync Messages ── */
+.sync-message {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    animation: slideDown 0.3s ease-out;
+}
+
+.sync-success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-left: 4px solid #4caf50;
+}
+
+.sync-error {
+    background-color: #ffebee;
+    color: #d32f2f;
+    border-left: 4px solid #f44336;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#sync-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* ── Quick Actions ── */
+.action-buttons {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 22px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #1558b0;
+}
+
+.btn-secondary {
+    background-color: white;
+    color: #555;
+    border: 1px solid #ccc;
+}
+
+.btn-secondary:hover {
+    background-color: #f0f0f0;
+}
+
+.hero .btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.coming-soon {
+    font-size: 11px;
+    background-color: #eee;
+    color: #888;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 6px;
+    font-weight: normal;
+    vertical-align: middle;
+}
+
+/* ── Homepage Layout ── */
+.home-layout {
+    background-color: #f4f6f8;
+}
+
+/* ── Landing Page Navigation ── */
+.landing-nav {
+    background-color: #1a73e8;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.landing-nav-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.landing-brand {
+    color: white;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.landing-nav-toggle {
+    display: none;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    font-size: 18px;
+    line-height: 1;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.landing-nav-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.landing-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.landing-nav-links > a {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.landing-nav-links > a:hover {
+    opacity: 1;
+}
+
+.landing-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+@media (max-width: 768px) {
+    .landing-nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .landing-nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding-top: 16px;
+    }
+
+    .landing-nav-links.is-open {
+        display: flex;
+    }
+
+    .landing-nav-actions {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .landing-nav-actions .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .landing-nav-inner {
+        flex-wrap: wrap;
+    }
+}
+
+/* ── Hero Section ── */
+.hero {
+    background: linear-gradient(135deg, #1a73e8 0%, #1558b0 100%);
+    color: white;
+    text-align: center;
+    padding: 80px 24px;
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-title {
+    font-size: 48px;
+    margin: 0 0 12px 0;
+    font-weight: bold;
+}
+
+.hero-subtitle {
+    font-size: 24px;
+    margin: 0 0 20px 0;
+    opacity: 0.9;
+    font-weight: normal;
+}
+
+.hero-description {
+    font-size: 18px;
+    margin: 0 0 40px 0;
+    max-width: 600px;
+    line-height: 1.5;
+    opacity: 0.95;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.hero-button {
+    width: 220px;
+    height: 52px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+/* ── Features Section ── */
+.features {
+    max-width: 960px;
+    margin: 60px auto;
+    padding: 0 16px;
+}
+
+.section-title {
+    font-size: 28px;
+    text-align: center;
+    margin: 0 0 40px 0;
+    color: #222;
+}
+
+.section-subtitle {
+    text-align: center;
+    color: #666;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 620px;
+    margin: -24px auto 40px;
+}
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+    margin-bottom: 60px;
+}
+
+.feature-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.feature-link {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+}
+
+.feature-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.feature-title {
+    font-size: 18px;
+    margin: 0 0 12px 0;
+    color: #222;
+}
+
+.feature-description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #666;
+    margin: 0;
+}
+
+/* ── How It Works Steps ── */
+.step-card {
+    text-align: center;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #1a73e8;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    margin: 0 auto 16px;
+}
+
+/* ── Symptom Checker Preview ── */
+.symptom-preview-card {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.symptom-preview-result {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.symptom-preview-locked {
+    background-color: #fff8f0;
+    border-left: 4px solid #ff9800;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #855400;
+    margin: 12px 0 16px;
+}
+
+/* ── Landing Page Footer ── */
+.landing-footer {
+    background-color: #1a1a1a;
+    color: #ccc;
+    padding: 24px;
+}
+
+.landing-footer-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 13px;
+}
+
+.landing-footer-links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.landing-footer-links a {
+    color: #ccc;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.landing-footer-links a:hover {
+    color: white;
+}
+
+/* ── Disclaimer Section ── */
+.disclaimer-section {
+    background-color: #fff8f0;
+    padding: 40px 24px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.disclaimer-box {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px;
+    background-color: white;
+    border-left: 4px solid #ff9800;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.disclaimer-text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555;
+}
+
+/* ── Header with Home Link ── */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.home-link {
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 8px 12px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.home-link:hover {
+    opacity: 1;
+}
+
+.header-account {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 8px;
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.header-user-email {
+    color: white;
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+/* ── Maintenance Log Layout ── */
+.maintenance-layout {
+    max-width: 960px;
+    margin: 32px auto;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ── Vehicle Context Card ── */
+.vehicle-context-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    border-top: 4px solid #1a73e8;
+}
+
+.vehicle-context-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+}
+
+.vehicle-context-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.vehicle-context-item .label {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.vehicle-context-item .value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #222;
+}
+
+.status-active {
+    color: #2e7d32;
+    background-color: #e8f5e9;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* ── Maintenance Table ── */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.maintenance-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.maintenance-table thead {
+    background-color: #f9f9f9;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.maintenance-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: bold;
+    color: #333;
+}
+
+.maintenance-table td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #555;
+}
+
+.maintenance-table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+.maintenance-table tbody tr.is-editing {
+    background-color: #f0f4ff;
+}
+
+.maintenance-table-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn-danger {
+    background-color: white;
+    color: #d32f2f;
+    border: 1px solid #f4c7c3;
+}
+
+.btn-danger:hover {
+    background-color: #ffebee;
+}
+
+.maintenance-form-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+    .maintenance-table-actions {
+        flex-direction: column;
+    }
+
+    .maintenance-form-actions .btn {
+        width: 100%;
+    }
+}
+
+.empty-state {
+    text-align: center;
+    color: #999;
+    font-size: 15px;
+    padding: 20px 0;
+}
+
+/* ── Maintenance Form ── */
+.maintenance-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.form-group input[type="date"],
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group select,
+.form-group textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    background-color: white;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+/* ── Manufacturer Combobox (Garage "Add New Vehicle" form) ── */
+.make-combobox {
+    position: relative;
+}
+
+.make-combobox input {
+    width: 100%;
+}
+
+.make-combobox-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    margin-top: 4px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.make-suggestion-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    background-color: white;
+    border: none;
+    border-radius: 0;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    color: #333;
+    cursor: pointer;
+}
+
+.make-suggestion-option:first-child {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+.make-suggestion-option:last-child {
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.make-suggestion-option:hover,
+.make-suggestion-option.is-highlighted {
+    background-color: #f0f4ff;
+    color: #1a73e8;
+}
+
+.make-combobox-empty {
+    padding: 10px 12px;
+    margin: 0;
+    font-size: 13px;
+    color: #999;
+}
+
+@media (max-width: 600px) {
+    .make-combobox-suggestions {
+        max-height: 180px;
+    }
+}
+
+/* ── VIN Decode Panel (Garage "Add New Vehicle" form) ── */
+.vin-decode-panel {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.vin-decode-actions {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.vin-decode-actions input {
+    flex: 1;
+    min-width: 0;
+}
+
+.vin-decode-actions button {
+    flex-shrink: 0;
+}
+
+.vin-decode-summary {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.vin-decode-status {
+    color: #2e7d32;
+    background-color: #e8f5e9;
+    border-left: 4px solid #4caf50;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0 0 12px;
+}
+
+.vin-decode-warning {
+    color: #855400;
+    background-color: #fff8f0;
+    border-left: 4px solid #ff9800;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 0 0 12px;
+}
+
+.vin-decode-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px 16px;
+}
+
+.vin-decode-details p {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 0;
+    font-size: 14px;
+}
+
+@media (max-width: 600px) {
+    .vin-decode-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .vin-decode-actions button {
+        width: 100%;
+    }
+
+    .vin-decode-details {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Password Requirements Checklist ── */
+.password-requirements {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.password-requirement {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #999;
+    transition: color 0.2s;
+}
+
+.password-requirement.is-valid {
+    color: #2e7d32;
+}
+
+.requirement-icon {
+    font-size: 13px;
+    width: 16px;
+    text-align: center;
+}
+
+.password-hint {
+    font-size: 12px;
+    color: #999;
+    margin: 8px 0 0;
+    line-height: 1.5;
+}
+
+/* ── Auth Pages (Login / Signup) ── */
+.auth-card {
+    max-width: 420px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.form-error {
+    color: #d32f2f;
+    background-color: #ffebee;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border-left: 4px solid #f44336;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.form-success {
+    color: #2e7d32;
+    background-color: #e8f5e9;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border-left: 4px solid #4caf50;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.form-links {
+    margin: 16px 0 0;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+}
+
+/* ── Quick Links Section ── */
+.quick-links {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ── Records Section ── */
+.records-section {
+    margin-bottom: 8px;
+}
+
+.add-record-section {
+    margin-bottom: 8px;
+}
+
+.links-section {
+    text-align: center;
+}
+
+/* ── Vehicle Garage List ── */
+.vehicle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.vehicle-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fafafa;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.vehicle-list-item:hover {
+    background-color: #f0f4ff;
+    border-color: #1a73e8;
+}
+
+.vehicle-list-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.vehicle-list-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #222;
+}
+
+.vehicle-list-meta {
+    font-size: 13px;
+    color: #666;
+}
+
+/* ── Authenticated Home Dashboard ── */
+.vehicle-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.vehicle-summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.vehicle-summary-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #222;
+}
+
+.vehicle-summary-details p {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    .vehicle-summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Responsive tweaks ── */
+@media (max-width: 600px) {
+    .hero-title {
+        font-size: 36px;
+    }
+
+    .hero-subtitle {
+        font-size: 20px;
+    }
+
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .container {
+        margin: 24px auto;
+        padding: 20px;
+    }
+}
