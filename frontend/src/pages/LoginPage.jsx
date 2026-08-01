@@ -14,9 +14,16 @@ function LoginPage() {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const from = location.state?.from
-    ? location.state.from.pathname + location.state.from.search
-    : '/garage'
+  const fromLocation = location.state?.from
+
+  const hasValidInternalDestination =
+    typeof fromLocation?.pathname === 'string' &&
+    fromLocation.pathname.startsWith('/') &&
+    !fromLocation.pathname.startsWith('//')
+
+  const destination = hasValidInternalDestination
+    ? `${fromLocation.pathname}${fromLocation.search ?? ''}${fromLocation.hash ?? ''}`
+    : '/home'
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -39,7 +46,7 @@ function LoginPage() {
       return
     }
 
-    navigate(from, { replace: true })
+    navigate(destination, { replace: true })
   }
 
   return (
