@@ -1,16 +1,54 @@
-# React + Vite
+# Online Garage — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite single-page application for Online Garage: authentication, multi-vehicle garage management, NHTSA-backed vehicle/VIN lookup, and per-vehicle maintenance tracking against a Supabase backend.
 
-Currently, two official plugins are available:
+See the [root README](../README.md) for full project context, architecture, database schema, and current limitations.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+- React 19 + React Router 7
+- Vite 8
+- `@supabase/supabase-js` (Authentication + PostgreSQL)
+- ESLint
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Main Commands
 
-## Expanding the ESLint configuration
+Run from this `frontend/` directory:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install       # install dependencies
+npm run dev       # start the Vite dev server
+npm run lint       # run ESLint
+npm run build      # production build
+npm run preview    # preview the production build locally
+```
+
+## Environment Variables
+
+Create `frontend/.env.local` (never committed) from `.env.example`:
+
+```env
+VITE_SUPABASE_URL=
+VITE_SUPABASE_PUBLISHABLE_KEY=
+```
+
+Both are required by `src/lib/supabaseClient.js`; the app throws on startup if either is missing.
+
+## Main Directories
+
+```text
+src/
+├── pages/        # Route-level views (Landing, Login, Signup, Home, Garage, Dashboard, Maintenance, SymptomChecker)
+├── components/    # Reusable UI: Header, ProtectedRoute, VehicleCard, VehicleSummaryCard, MaintenanceTable, TelemetryCard
+├── context/       # AuthContext / useAuth — Supabase session state
+├── services/      # vehicleService, maintenanceService (Supabase queries), nhtsaVehicleService (NHTSA vPIC API)
+├── lib/           # Supabase client initialization
+└── data/          # Static data backing the symptom checker demo (not from Supabase)
+```
+
+## Development Notes
+
+- Routing lives in `src/App.jsx`; protected routes are wrapped in `ProtectedRoute`, which redirects unauthenticated users to `/login`.
+- `vehicleService.js` and `maintenanceService.js` are thin wrappers around Supabase queries — Row Level Security on the backend is the actual ownership boundary, not client-side checks.
+- `nhtsaVehicleService.js` calls the public NHTSA vPIC API directly from the browser and caches results in memory per session.
+- The symptom checker page currently reads from `src/data/mockData.js`, not Supabase — see the root README's Current Limitations section before extending it.
