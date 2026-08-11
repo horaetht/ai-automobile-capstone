@@ -7,6 +7,7 @@ import MaintenancePage from './pages/MaintenancePage'
 import SymptomCheckerPage from './pages/SymptomCheckerPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
+import ProfileSetupPage from './pages/ProfileSetupPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './context/useAuth'
 
@@ -36,6 +37,14 @@ function App() {
       <Route path="/" element={<RootRoute />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route
+        path="/profile/setup"
+        element={
+          <ProtectedRoute requireCompleteProfile={false}>
+            <ProfileSetupPage />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/home"
         element={

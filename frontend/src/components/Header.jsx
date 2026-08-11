@@ -2,13 +2,15 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 
 function Header({ title, subtitle, showGarageLink = true }) {
-  const { user, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
     await signOut()
     navigate('/')
   }
+
+  const accountLabel = profile?.username ? `@${profile.username}` : profile?.first_name || user?.email
 
   return (
     <header className="site-header">
@@ -29,7 +31,7 @@ function Header({ title, subtitle, showGarageLink = true }) {
             </Link>
             {user && (
               <div className="header-account">
-                <span className="header-user-email">{user.email}</span>
+                <span className="header-user-email">{accountLabel}</span>
                 <button type="button" className="btn btn-secondary btn-small" onClick={handleLogout}>
                   Logout
                 </button>
