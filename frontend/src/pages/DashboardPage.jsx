@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Header from '../components/Header'
 import TelemetryCard from '../components/TelemetryCard'
+import MaintenanceReminderCard from '../components/MaintenanceReminderCard'
 import { getVehicleById } from '../services/vehicleService'
+import { getMaintenanceRecords } from '../services/maintenanceService'
+import { getMaintenanceReminders, sortRemindersByPriority, MAINTENANCE_DISCLAIMER } from '../utils/maintenanceReminderEngine'
 
 function DashboardPage() {
   const { vehicleId } = useParams()
@@ -10,6 +13,12 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const isMounted = useRef(true)
+
+  const [maintenanceRecords, setMaintenanceRecords] = useState([])
+  const [remindersLoading, setRemindersLoading] = useState(true)
+  const [remindersError, setRemindersError] = useState(null)
+  const remindersMounted = useRef(true)
+  const remindersVehicleIdRef = useRef(vehicleId)
 
   useEffect(() => {
     isMounted.current = true
@@ -35,6 +44,37 @@ function DashboardPage() {
 
     return () => {
       isMounted.current = false
+    }
+  }, [vehicleId])
+
+  // Maintenance history loads independently of the vehicle so a failure here
+  // never prevents the core vehicle dashboard from rendering.
+  useEffect(() => {
+    remindersMounted.current = true
+    remindersVehicleIdRef.current = vehicleId
+    const targetVehicleId = vehicleId
+
+    const loadMaintenanceRecords = async () => {
+      setRemindersLoading(true)
+      setRemindersError(null)
+      try {
+        const data = await getMaintenanceRecords(vehicleId)
+        if (!remindersMounted.current || remindersVehicleIdRef.current !== targetVehicleId) return
+        setMaintenanceRecords(data)
+      } catch (err) {
+        if (!remindersMounted.current || remindersVehicleIdRef.current !== targetVehicleId) return
+        setRemindersError(err instanceof Error ? err.message : 'Failed to load maintenance history.')
+      } finally {
+        if (remindersMounted.current && remindersVehicleIdRef.current === targetVehicleId) {
+          setRemindersLoading(false)
+        }
+      }
+    }
+
+    loadMaintenanceRecords()
+
+    return () => {
+      remindersMounted.current = false
     }
   }, [vehicleId])
 
@@ -124,6 +164,24 @@ function DashboardPage() {
         </section>
 
         <TelemetryCard vehicle={vehicle} />
+
+        <section className="card reminders-card">
+          <h2 className="card-title">Maintenance Status</h2>
+          <p className="maintenance-disclaimer">{MAINTENANCE_DISCLAIMER}</p>
+          {remindersLoading ? (
+            <p className="empty-state">Loading maintenance status...</p>
+          ) : remindersError ? (
+            <p className="form-error" role="alert">
+              Unable to load maintenance history: {remindersError}
+            </p>
+          ) : (
+            <div className="reminder-grid">
+              {sortRemindersByPriority(getMaintenanceReminders(vehicle, maintenanceRecords)).map((reminder) => (
+                <MaintenanceReminderCard key={reminder.key} reminder={reminder} vehicleId={vehicle.id} />
+              ))}
+            </div>
+          )}
+        </section>
 
         <section className="card actions-card">
           <h2 className="card-title">Quick Actions</h2>
