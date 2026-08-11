@@ -4,7 +4,7 @@ function trimmedOrEmpty(value) {
   return typeof value === 'string' ? value.trim() : ''
 }
 
-function normalizeRecordFields(record) {
+function normalizeRecordFields(record, currentVehicleMileage) {
   const serviceDate = trimmedOrEmpty(record.service_date)
   if (!serviceDate) {
     throw new Error('A service date is required.')
@@ -13,6 +13,14 @@ function normalizeRecordFields(record) {
   const mileage = Number(record.mileage)
   if (!Number.isFinite(mileage) || mileage < 0) {
     throw new Error('Mileage must be a non-negative number.')
+  }
+
+  // currentVehicleMileage is only enforced as an upper bound when it is
+  // itself a valid non-negative number; an invalid/unknown vehicle mileage
+  // fails safe by skipping this check rather than blocking every record.
+  const maxMileage = Number(currentVehicleMileage)
+  if (currentVehicleMileage !== undefined && Number.isFinite(maxMileage) && maxMileage >= 0 && mileage > maxMileage) {
+    throw new Error(`Service mileage cannot exceed the vehicle's current mileage of ${maxMileage.toLocaleString()} mi.`)
   }
 
   const description = trimmedOrEmpty(record.description)
@@ -51,7 +59,7 @@ export async function getMaintenanceRecords(vehicleId) {
   return data || []
 }
 
-export async function createMaintenanceRecord(vehicleId, userId, record) {
+export async function createMaintenanceRecord(vehicleId, userId, record, currentVehicleMileage) {
   if (typeof vehicleId !== 'string' || !vehicleId.trim()) {
     throw new Error('A vehicle ID is required.')
   }
@@ -59,7 +67,7 @@ export async function createMaintenanceRecord(vehicleId, userId, record) {
     throw new Error('createMaintenanceRecord requires an authenticated userId.')
   }
 
-  const fields = normalizeRecordFields(record)
+  const fields = normalizeRecordFields(record, currentVehicleMileage)
 
   const payload = {
     user_id: userId,
@@ -76,7 +84,7 @@ export async function createMaintenanceRecord(vehicleId, userId, record) {
   return data
 }
 
-export async function updateMaintenanceRecord(recordId, vehicleId, record) {
+export async function updateMaintenanceRecord(recordId, vehicleId, record, currentVehicleMileage) {
   if (typeof recordId !== 'string' || !recordId.trim()) {
     throw new Error('A record ID is required.')
   }
@@ -84,7 +92,7 @@ export async function updateMaintenanceRecord(recordId, vehicleId, record) {
     throw new Error('A vehicle ID is required.')
   }
 
-  const fields = normalizeRecordFields(record)
+  const fields = normalizeRecordFields(record, currentVehicleMileage)
 
   const { data, error } = await supabase
     .from('maintenance_records')

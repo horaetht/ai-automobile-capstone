@@ -13,6 +13,14 @@ import {
 
 const emptyForm = { service_date: '', mileage: '', description: '', replaced_parts: '', notes: '' }
 
+// Returns the vehicle's current mileage as a finite non-negative number, or
+// null when it is missing/invalid — callers use null to skip mileage-bound
+// checks rather than enforcing an invalid ceiling.
+function getValidVehicleMileage(vehicle) {
+  const mileage = Number(vehicle?.mileage)
+  return Number.isFinite(mileage) && mileage >= 0 ? mileage : null
+}
+
 function sortRecords(records) {
   return [...records].sort((a, b) => {
     if (a.service_date !== b.service_date) {
@@ -113,6 +121,13 @@ function MaintenancePage() {
       return
     }
 
+    const vehicleMileage = getValidVehicleMileage(vehicle)
+    const enteredMileage = Number(form.mileage)
+    if (vehicleMileage !== null && Number.isFinite(enteredMileage) && enteredMileage > vehicleMileage) {
+      setMutationError(`Service mileage cannot exceed the vehicle's current mileage of ${vehicleMileage.toLocaleString()} mi.`)
+      return
+    }
+
     const targetVehicleId = vehicleId
     const isEditing = editingRecordId !== null
 
@@ -120,13 +135,13 @@ function MaintenancePage() {
     setSubmitting(true)
     try {
       if (isEditing) {
-        const updated = await updateMaintenanceRecord(editingRecordId, vehicleId, form)
+        const updated = await updateMaintenanceRecord(editingRecordId, vehicleId, form, vehicle.mileage)
         if (!isMounted.current || vehicleIdRef.current !== targetVehicleId) return
         setRecords((prev) => sortRecords(prev.map((r) => (r.id === updated.id ? updated : r))))
         setForm(emptyForm)
         setEditingRecordId(null)
       } else {
-        const inserted = await createMaintenanceRecord(vehicleId, user?.id, form)
+        const inserted = await createMaintenanceRecord(vehicleId, user?.id, form, vehicle.mileage)
         if (!isMounted.current || vehicleIdRef.current !== targetVehicleId) return
         setRecords((prev) => sortRecords([inserted, ...prev]))
         setForm(emptyForm)
@@ -224,6 +239,8 @@ function MaintenancePage() {
     )
   }
 
+  const vehicleMileage = getValidVehicleMileage(vehicle)
+
   return (
     <>
       <Header title="Maintenance Log" />
@@ -296,8 +313,12 @@ function MaintenancePage() {
                 value={form.mileage}
                 onChange={handleChange}
                 min="0"
+                max={vehicleMileage !== null ? vehicleMileage : undefined}
                 required
               />
+              {vehicleMileage !== null && (
+                <p className="field-hint">Current vehicle mileage: {vehicleMileage.toLocaleString()} mi.</p>
+              )}
             </div>
 
             <div className="form-group">
