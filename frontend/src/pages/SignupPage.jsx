@@ -2,8 +2,15 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import { useAuth } from '../context/useAuth'
+import {
+  normalizeUsername,
+  isValidUsername,
+  isUsernameAvailable,
+  USERNAME_MIN_LENGTH,
+  USERNAME_MAX_LENGTH,
+} from '../services/profileService'
 
-const emptyForm = { email: '', password: '' }
+const emptyForm = { first_name: '', last_name: '', username: '', email: '', password: '' }
 
 const passwordRequirements = [
   { id: 'length', label: 'At least 8 characters', test: (pw) => pw.length >= 8 },
@@ -34,10 +41,19 @@ function SignupPage() {
     e.preventDefault()
     if (loading) return
 
+    const firstName = form.first_name.trim()
+    const lastName = form.last_name.trim()
+    const username = normalizeUsername(form.username)
     const normalizedEmail = form.email.trim().toLowerCase()
 
-    if (!normalizedEmail || !form.password) {
-      setError('Please enter an email and password.')
+    if (!firstName || !lastName || !username || !normalizedEmail || !form.password) {
+      setError('Please fill in your first name, last name, username, email, and password.')
+      return
+    }
+    if (!isValidUsername(username)) {
+      setError(
+        `Usernames must be ${USERNAME_MIN_LENGTH}-${USERNAME_MAX_LENGTH} characters and contain only lowercase letters, numbers, and underscores.`,
+      )
       return
     }
     if (!isPasswordValid) {
@@ -49,7 +65,17 @@ function SignupPage() {
     setMessage(null)
     setLoading(true)
     try {
-      const { data, error: signUpError } = await signUp(normalizedEmail, form.password)
+      const available = await isUsernameAvailable(username)
+      if (!available) {
+        setError('That username is already taken.')
+        return
+      }
+
+      const { data, error: signUpError } = await signUp(normalizedEmail, form.password, {
+        username,
+        first_name: firstName,
+        last_name: lastName,
+      })
 
       if (signUpError) {
         setError(signUpError.message)
@@ -64,10 +90,10 @@ function SignupPage() {
       setMessage(
         'If this email can be registered, check your inbox for a confirmation link. If you already have an account, log in instead.',
       )
-      setForm({ email: normalizedEmail, password: '' })
+      setForm({ first_name: firstName, last_name: lastName, username, email: normalizedEmail, password: '' })
     } catch (err) {
       setError(err instanceof Error
-        ? err.message 
+        ? err.message
         : 'Something went wrong. Please try again.'
       )
     } finally {
@@ -84,6 +110,49 @@ function SignupPage() {
           {error && <p className="form-error">{error}</p>}
           {message && <p className="form-success">{message}</p>}
           <form className="maintenance-form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="first_name">First Name *</label>
+              <input
+                type="text"
+                id="first_name"
+                name="first_name"
+                placeholder="Horace"
+                value={form.first_name}
+                onChange={handleChange}
+                autoComplete="given-name"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="last_name">Last Name *</label>
+              <input
+                type="text"
+                id="last_name"
+                name="last_name"
+                placeholder="Chan"
+                value={form.last_name}
+                onChange={handleChange}
+                autoComplete="family-name"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="username">Username *</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="horace08"
+                value={form.username}
+                onChange={handleChange}
+                autoComplete="username"
+                required
+              />
+              <p className="field-hint">
+                {USERNAME_MIN_LENGTH}-{USERNAME_MAX_LENGTH} characters: lowercase letters, numbers, and underscores
+                only.
+              </p>
+            </div>
             <div className="form-group">
               <label htmlFor="email">Email *</label>
               <input

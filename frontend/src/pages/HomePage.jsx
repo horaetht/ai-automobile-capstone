@@ -30,14 +30,17 @@ function MaintenanceQuickAction({ vehicles }) {
 }
 
 function HomePage() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [vehicles, setVehicles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [reloadIndex, setReloadIndex] = useState(0)
 
   const displayName =
-    user?.user_metadata?.full_name?.trim() || user?.email?.split('@')[0] || 'Driver'
+    profile?.first_name?.trim() ||
+    user?.user_metadata?.full_name?.trim() ||
+    user?.email?.split('@')[0] ||
+    'Driver'
 
   useEffect(() => {
     let active = true
