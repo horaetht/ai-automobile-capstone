@@ -5,7 +5,14 @@ import TelemetryCard from '../components/TelemetryCard'
 import MaintenanceReminderCard from '../components/MaintenanceReminderCard'
 import { getVehicleById } from '../services/vehicleService'
 import { getMaintenanceRecords } from '../services/maintenanceService'
-import { getMaintenanceReminders, sortRemindersByPriority, MAINTENANCE_DISCLAIMER } from '../utils/maintenanceReminderEngine'
+import {
+  getMaintenanceReminders,
+  sortRemindersByPriority,
+  summarizeReminders,
+  MAINTENANCE_DISCLAIMER,
+} from '../utils/maintenanceReminderEngine'
+
+const INITIAL_VISIBLE_REMINDER_COUNT = 4
 
 function DashboardPage() {
   const { vehicleId } = useParams()
@@ -17,6 +24,7 @@ function DashboardPage() {
   const [maintenanceRecords, setMaintenanceRecords] = useState([])
   const [remindersLoading, setRemindersLoading] = useState(true)
   const [remindersError, setRemindersError] = useState(null)
+  const [showAllReminders, setShowAllReminders] = useState(false)
   const remindersMounted = useRef(true)
   const remindersVehicleIdRef = useRef(vehicleId)
 
@@ -57,6 +65,7 @@ function DashboardPage() {
     const loadMaintenanceRecords = async () => {
       setRemindersLoading(true)
       setRemindersError(null)
+      setShowAllReminders(false)
       try {
         const data = await getMaintenanceRecords(vehicleId)
         if (!remindersMounted.current || remindersVehicleIdRef.current !== targetVehicleId) return
@@ -123,6 +132,12 @@ function DashboardPage() {
     )
   }
 
+  const remindersReady = !remindersLoading && !remindersError
+  const sortedReminders = remindersReady ? sortRemindersByPriority(getMaintenanceReminders(vehicle, maintenanceRecords)) : []
+  const reminderSummary = remindersReady ? summarizeReminders(sortedReminders) : []
+  const hasMoreReminders = sortedReminders.length > INITIAL_VISIBLE_REMINDER_COUNT
+  const visibleReminders = showAllReminders ? sortedReminders : sortedReminders.slice(0, INITIAL_VISIBLE_REMINDER_COUNT)
+
   return (
     <>
       <Header title="Online Garage" subtitle="with AI Symptom Checker" />
@@ -175,11 +190,31 @@ function DashboardPage() {
               Unable to load maintenance history: {remindersError}
             </p>
           ) : (
-            <div className="reminder-grid">
-              {sortRemindersByPriority(getMaintenanceReminders(vehicle, maintenanceRecords)).map((reminder) => (
-                <MaintenanceReminderCard key={reminder.key} reminder={reminder} vehicleId={vehicle.id} />
-              ))}
-            </div>
+            <>
+              {reminderSummary.length > 0 && (
+                <p className="reminder-summary">
+                  {reminderSummary.map((entry) => `${entry.count} ${entry.label}`).join(' • ')}
+                </p>
+              )}
+              <div className="reminder-grid">
+                {visibleReminders.map((reminder) => (
+                  <MaintenanceReminderCard key={reminder.key} reminder={reminder} vehicleId={vehicle.id} />
+                ))}
+              </div>
+              {hasMoreReminders && (
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-small reminder-toggle"
+                  onClick={() => setShowAllReminders((value) => !value)}
+                >
+                  {showAllReminders ? 'Show Fewer' : 'View All Maintenance Items'}
+                </button>
+              )}
+              <p className="reminder-health-note">
+                Live vehicle-health monitoring such as battery and tire pressure will become available when OBD data
+                is connected.
+              </p>
+            </>
           )}
         </section>
 

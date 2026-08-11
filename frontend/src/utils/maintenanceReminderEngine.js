@@ -22,6 +22,22 @@ const STATUS_LABELS = {
   [REMINDER_STATUS.NO_HISTORY]: 'No History',
 }
 
+// Lowercase phrasing for the compact "N overdue • N due soon ..." summary,
+// as distinct from the uppercase badge text in STATUS_LABELS.
+const SUMMARY_STATUS_LABELS = {
+  [REMINDER_STATUS.OVERDUE]: 'overdue',
+  [REMINDER_STATUS.DUE_SOON]: 'due soon',
+  [REMINDER_STATUS.NO_HISTORY]: 'without history',
+  [REMINDER_STATUS.UP_TO_DATE]: 'up to date',
+}
+
+const SUMMARY_STATUS_ORDER = [
+  REMINDER_STATUS.OVERDUE,
+  REMINDER_STATUS.DUE_SOON,
+  REMINDER_STATUS.NO_HISTORY,
+  REMINDER_STATUS.UP_TO_DATE,
+]
+
 export const MAINTENANCE_DISCLAIMER =
   "Maintenance intervals are general estimates, not manufacturer-specific service recommendations. Follow your vehicle manufacturer's recommended service schedule."
 
@@ -50,6 +66,30 @@ const OIL_CHANGE_PATTERNS = [
 
 const TIRE_ROTATION_PATTERNS = [/\btire rotation\b/, /\brotate(d)? (the )?tires\b/]
 
+// "Brake" is common in unrelated repairs (parking brake cable, brake light),
+// so only explicit inspection/pad-service phrasing counts. We cannot infer
+// remaining pad thickness from mileage alone — this only resets the
+// inspection-interval timer, which is why the rule is labeled "Brake
+// Inspection" rather than implying pad wear is being predicted.
+const BRAKE_INSPECTION_PATTERNS = [
+  /\bbrake inspection\b/,
+  /\binspected (the )?brakes\b/,
+  /\bbrake service\b/,
+  /\bbrake pads? replacement\b/,
+  /\breplaced (the )?brake pads\b/,
+  /\b(front|rear) brake pads\b/,
+]
+
+// Bare "air filter change/replacement" defaults to the engine air filter,
+// since that's the far more common maintenance-log usage; an explicit
+// "cabin" mention excludes the record entirely so it can't be conflated
+// with the (out-of-scope for Day 9) cabin air filter.
+const ENGINE_AIR_FILTER_PATTERNS = [/\bengine air filter\b/, /\bair filter (change|replacement|replaced)\b/]
+
+const TRANSMISSION_FLUID_PATTERNS = [/\btransmission fluid\b/, /\btransmission service\b/, /\batf change\b/]
+
+const COOLANT_SERVICE_PATTERNS = [/\bcoolant (change|flush|service)\b/, /\bchanged (the )?coolant\b/]
+
 function normalizeText(value) {
   return typeof value === 'string' ? value.trim().toLowerCase().replace(/\s+/g, ' ') : ''
 }
@@ -62,12 +102,30 @@ function matchesAnyPattern(text, patterns) {
   return patterns.some((pattern) => pattern.test(text))
 }
 
-export function isOilChangeRecord(record) {
+export function isEngineOilRecord(record) {
   return matchesAnyPattern(matchableText(record), OIL_CHANGE_PATTERNS)
 }
 
 export function isTireRotationRecord(record) {
   return matchesAnyPattern(matchableText(record), TIRE_ROTATION_PATTERNS)
+}
+
+export function isBrakeInspectionRecord(record) {
+  return matchesAnyPattern(matchableText(record), BRAKE_INSPECTION_PATTERNS)
+}
+
+export function isEngineAirFilterRecord(record) {
+  const text = matchableText(record)
+  if (/\bcabin\b/.test(text)) return false
+  return matchesAnyPattern(text, ENGINE_AIR_FILTER_PATTERNS)
+}
+
+export function isTransmissionFluidRecord(record) {
+  return matchesAnyPattern(matchableText(record), TRANSMISSION_FLUID_PATTERNS)
+}
+
+export function isCoolantServiceRecord(record) {
+  return matchesAnyPattern(matchableText(record), COOLANT_SERVICE_PATTERNS)
 }
 
 // Returns a finite, non-negative number, or null if the value is missing/invalid.
@@ -102,11 +160,11 @@ function formatMiles(value) {
 
 const MAINTENANCE_RULE_DEFINITIONS = [
   {
-    key: 'oil_change',
-    label: 'Oil Change',
+    key: 'engine_oil',
+    label: 'Engine Oil',
     intervalMiles: 5000,
     dueSoonThresholdMiles: 1000,
-    matcher: isOilChangeRecord,
+    matcher: isEngineOilRecord,
   },
   {
     key: 'tire_rotation',
@@ -114,6 +172,34 @@ const MAINTENANCE_RULE_DEFINITIONS = [
     intervalMiles: 5000,
     dueSoonThresholdMiles: 1000,
     matcher: isTireRotationRecord,
+  },
+  {
+    key: 'brake_inspection',
+    label: 'Brake Inspection',
+    intervalMiles: 10000,
+    dueSoonThresholdMiles: 2000,
+    matcher: isBrakeInspectionRecord,
+  },
+  {
+    key: 'engine_air_filter',
+    label: 'Engine Air Filter',
+    intervalMiles: 15000,
+    dueSoonThresholdMiles: 3000,
+    matcher: isEngineAirFilterRecord,
+  },
+  {
+    key: 'transmission_fluid',
+    label: 'Transmission Fluid',
+    intervalMiles: 30000,
+    dueSoonThresholdMiles: 5000,
+    matcher: isTransmissionFluidRecord,
+  },
+  {
+    key: 'coolant_service',
+    label: 'Coolant Service',
+    intervalMiles: 30000,
+    dueSoonThresholdMiles: 5000,
+    matcher: isCoolantServiceRecord,
   },
 ]
 
@@ -216,6 +302,23 @@ export function getMaintenanceReminders(vehicle, maintenanceRecords) {
 
 export function getReminderStatusLabel(status) {
   return STATUS_LABELS[status] || status
+}
+
+// Derives status counts directly from an existing reminders array — no
+// separate counting state, and only statuses with at least one reminder are
+// included, in the same overdue > due-soon > no-history > up-to-date order
+// used for sorting.
+export function summarizeReminders(reminders) {
+  const counts = (Array.isArray(reminders) ? reminders : []).reduce((acc, reminder) => {
+    if (Object.prototype.hasOwnProperty.call(acc, reminder.status)) {
+      acc[reminder.status] += 1
+    }
+    return acc
+  }, Object.fromEntries(SUMMARY_STATUS_ORDER.map((status) => [status, 0])))
+
+  return SUMMARY_STATUS_ORDER.map((status) => ({ status, label: SUMMARY_STATUS_LABELS[status], count: counts[status] })).filter(
+    (entry) => entry.count > 0,
+  )
 }
 
 // overdue > due-soon > no-history > up-to-date. Within overdue, the most
