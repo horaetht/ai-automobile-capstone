@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import Header from '../components/Header'
 import TelemetryCard from '../components/TelemetryCard'
@@ -52,6 +52,22 @@ function DashboardPage() {
 
     return () => {
       isMounted.current = false
+    }
+  }, [vehicleId])
+
+  // Refetches the vehicle in place after a successful OBD sync, without
+  // touching `loading`/`error` -- a full "Loading vehicle..." replacement
+  // of the page for what's just a background telemetry refresh would be
+  // a worse experience than the already-rendered dashboard staying put.
+  const refreshVehicle = useCallback(async () => {
+    try {
+      const data = await getVehicleById(vehicleId)
+      if (isMounted.current) {
+        setVehicle(data)
+      }
+    } catch {
+      // A failed background refresh doesn't undo the sync that already
+      // succeeded; the user just sees updated values on their next visit.
     }
   }, [vehicleId])
 
@@ -178,7 +194,7 @@ function DashboardPage() {
           </div>
         </section>
 
-        <TelemetryCard vehicle={vehicle} />
+        <TelemetryCard vehicle={vehicle} onSynced={refreshVehicle} />
 
         <section className="card reminders-card">
           <h2 className="card-title">Maintenance Status</h2>
