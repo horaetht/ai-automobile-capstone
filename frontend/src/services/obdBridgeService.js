@@ -2,7 +2,9 @@
 // machine -- never Supabase. Keeps that responsibility separate from
 // telemetrySyncService.js, which talks only to Supabase.
 const DEFAULT_BRIDGE_URL = 'http://127.0.0.1:8765'
-const BRIDGE_URL = import.meta.env.VITE_OBD_BRIDGE_URL || DEFAULT_BRIDGE_URL
+// Exported so UI that needs to display the effective configured URL (e.g.
+// SettingsPage) can read it directly instead of re-deriving it.
+export const BRIDGE_URL = import.meta.env.VITE_OBD_BRIDGE_URL || DEFAULT_BRIDGE_URL
 
 export async function checkObdBridge() {
   try {

@@ -30,6 +30,11 @@ function Header({ title, subtitle, showGarageLink = true }) {
               ← Home
             </Link>
             {user && (
+              <Link to="/settings" className="home-link">
+                Settings
+              </Link>
+            )}
+            {user && (
               <div className="header-account">
                 <span className="header-user-email">{accountLabel}</span>
                 <button type="button" className="btn btn-secondary btn-small" onClick={handleLogout}>

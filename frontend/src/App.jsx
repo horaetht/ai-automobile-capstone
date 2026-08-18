@@ -8,6 +8,7 @@ import SymptomCheckerPage from './pages/SymptomCheckerPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import ProfileSetupPage from './pages/ProfileSetupPage'
+import SettingsPage from './pages/SettingsPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './context/useAuth'
 
@@ -58,6 +59,14 @@ function App() {
         element={
           <ProtectedRoute>
             <SymptomCheckerPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
           </ProtectedRoute>
         }
       />

@@ -1408,6 +1408,89 @@ button:disabled {
     color: #546e7a;
 }
 
+/* ── OBD Settings ── */
+.obd-status-running,
+.obd-status-checking,
+.obd-status-offline {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.obd-status-running {
+    color: #2e7d32;
+}
+
+.obd-status-checking {
+    color: #666;
+}
+
+.obd-status-offline {
+    color: #b26a00;
+}
+
+.obd-hint {
+    margin: 16px 0 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.obd-check-again-btn {
+    margin-top: 16px;
+}
+
+.obd-tech-details {
+    margin-top: 16px;
+    font-size: 13px;
+    color: #666;
+}
+
+.obd-tech-details summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #1a73e8;
+}
+
+.obd-tech-details p {
+    margin: 8px 0 0;
+}
+
+.obd-tech-details code {
+    background-color: #f4f6f8;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.obd-setup-steps {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5;
+}
+
+.obd-safety-note {
+    color: #855400;
+    background-color: #fff8f0;
+    border-left: 4px solid #ff9800;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin: 12px 0 0;
+}
+
+.obd-safety-note p {
+    margin: 0;
+}
+
+.obd-setup-hint {
+    margin: 8px 0 0;
+    font-size: 13px;
+}
+
 /* ── Responsive tweaks ── */
 @media (max-width: 600px) {
     .hero-title {

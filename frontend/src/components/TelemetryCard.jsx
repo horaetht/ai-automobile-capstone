@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { checkObdBridge, readObdTelemetry } from '../services/obdBridgeService'
 import { syncVehicleTelemetry } from '../services/telemetrySyncService'
 
@@ -108,6 +109,11 @@ function TelemetryCard({ vehicle, onSynced }) {
       {syncStatus === 'error' && syncError && (
         <p className="sync-message sync-error" role="alert">
           {syncError}
+        </p>
+      )}
+      {bridgeAvailable === false && !isSyncing && (
+        <p className="obd-setup-hint">
+          <Link to="/settings">OBD Setup →</Link>
         </p>
       )}
       <div className="telemetry-grid">
