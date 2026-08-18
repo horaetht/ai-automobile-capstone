@@ -7,3 +7,5 @@ obd
 supabase
 fastapi
 uvicorn
+pystray
+Pillow

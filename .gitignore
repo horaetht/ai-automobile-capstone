@@ -31,6 +31,9 @@ MANIFEST
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
+# ...except our own committed, hand-written, reproducible build spec for
+# the OBD bridge tray app (not template-generated, meant to be versioned).
+!obd_reader/OnlineGarageOBDBridge.spec
 
 # Installer logs
 pip-log.txt

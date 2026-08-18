@@ -1,0 +1,10 @@
+# Build-only dependency for packaging the OBD bridge into a Windows tray
+# executable (see obd_reader/windows_tray_app.py,
+# obd_reader/OnlineGarageOBDBridge.spec, scripts/build_obd_bridge.ps1).
+#
+# Not required at runtime by the packaged application, and not needed for
+# `python obd_reader/local_bridge.py` development mode -- only to build the
+# .exe:
+#   python -m pip install -r requirements.txt -r requirements-build.txt
+#   powershell -ExecutionPolicy Bypass -File scripts/build_obd_bridge.ps1
+pyinstaller
