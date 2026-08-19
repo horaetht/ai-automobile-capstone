@@ -13,6 +13,12 @@ export function AuthProvider({ children }) {
   // never be treated as "no profile" -- that would wrongly send a user with
   // a perfectly good profile into onboarding just because a request failed.
   const [profileError, setProfileError] = useState(null)
+  // Tracks which user's profile the last fetch actually resolved (success OR
+  // error) for -- null until a fetch completes. ProtectedRoute compares this
+  // against the current user's id instead of trusting profileLoading alone,
+  // so "profile completeness" can only ever be evaluated once resolution is
+  // confirmed for THIS user, independent of effect-scheduling/batching order.
+  const [profileResolvedUserId, setProfileResolvedUserId] = useState(null)
   const isMounted = useRef(true)
   const profileRequestUserIdRef = useRef(null)
 
@@ -50,6 +56,7 @@ export function AuthProvider({ children }) {
         setProfile(null)
         setProfileError(null)
         setProfileLoading(false)
+        setProfileResolvedUserId(null)
         return
       }
 
@@ -63,12 +70,17 @@ export function AuthProvider({ children }) {
         const data = await getProfile(targetUserId)
         if (!isMounted.current || profileRequestUserIdRef.current !== targetUserId) return
         setProfile(data)
+        setProfileResolvedUserId(targetUserId)
       } catch (err) {
         // A failed request is NOT "no profile" -- it's an unknown state.
         // Surface it via profileError and leave profile as-is (null here)
-        // rather than asserting the user has no profile.
+        // rather than asserting the user has no profile. Still mark this
+        // user's identity as resolved -- ProtectedRoute needs that to show
+        // the Retry UI instead of waiting on "Checking your profile…"
+        // forever.
         if (!isMounted.current || profileRequestUserIdRef.current !== targetUserId) return
         setProfileError(err instanceof Error ? err.message : 'Failed to load your profile.')
+        setProfileResolvedUserId(targetUserId)
       } finally {
         if (isMounted.current && profileRequestUserIdRef.current === targetUserId) {
           setProfileLoading(false)
@@ -94,6 +106,7 @@ export function AuthProvider({ children }) {
       setProfile(null)
       setProfileError(null)
       setProfileLoading(false)
+      setProfileResolvedUserId(null)
       return
     }
 
@@ -103,9 +116,11 @@ export function AuthProvider({ children }) {
       const data = await getProfile(targetUserId)
       if (!isMounted.current || profileRequestUserIdRef.current !== targetUserId) return
       setProfile(data)
+      setProfileResolvedUserId(targetUserId)
     } catch (err) {
       if (!isMounted.current || profileRequestUserIdRef.current !== targetUserId) return
       setProfileError(err instanceof Error ? err.message : 'Failed to load your profile.')
+      setProfileResolvedUserId(targetUserId)
     } finally {
       if (isMounted.current && profileRequestUserIdRef.current === targetUserId) {
         setProfileLoading(false)
@@ -147,6 +162,7 @@ export function AuthProvider({ children }) {
     profile,
     profileLoading,
     profileError,
+    profileResolvedUserId,
     refreshProfile,
     signUp,
     signIn,
