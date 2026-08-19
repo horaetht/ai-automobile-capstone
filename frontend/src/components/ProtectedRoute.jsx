@@ -3,7 +3,7 @@ import { useAuth } from '../context/useAuth'
 import { isProfileComplete } from '../services/profileService'
 
 function ProtectedRoute({ children, requireCompleteProfile = true }) {
-  const { user, loading, profile, profileLoading, profileError, refreshProfile } = useAuth()
+  const { user, loading, profile, profileLoading, profileError, profileResolvedUserId, refreshProfile } = useAuth()
   const location = useLocation()
 
   if (loading) {
@@ -21,7 +21,13 @@ function ProtectedRoute({ children, requireCompleteProfile = true }) {
   }
 
   if (requireCompleteProfile) {
-    if (profileLoading) {
+    // Don't trust profileLoading alone -- it can be transiently stale (e.g.
+    // immediately after a restored session or a fresh login, before the
+    // userId-dependent fetch effect has re-run). Only proceed once a profile
+    // request has actually resolved (success or error) for THIS exact user.
+    const profileResolvedForCurrentUser = profileResolvedUserId === user.id
+
+    if (profileLoading || !profileResolvedForCurrentUser) {
       return (
         <main className="dashboard-layout">
           <section className="card">
