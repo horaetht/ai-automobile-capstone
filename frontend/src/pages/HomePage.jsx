@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import Header from '../components/Header'
+import AppShell from '../components/AppShell'
+import PageHeader from '../components/PageHeader'
 import VehicleSummaryCard from '../components/VehicleSummaryCard'
 import { useAuth } from '../context/useAuth'
 import { getVehicles } from '../services/vehicleService'
@@ -76,13 +77,12 @@ function HomePage() {
   const previewVehicles = vehicles.slice(0, 3)
 
   return (
-    <>
-      <Header title="Online Garage" subtitle="Your Dashboard" />
-      <main className="dashboard-layout">
-        <section className="card">
-          <h2 className="card-title">Welcome back, {displayName}</h2>
-          <p className="profile-detail">Here is an overview of your garage.</p>
-        </section>
+    <AppShell>
+      <PageHeader title="Dashboard" subtitle="Your garage overview" />
+      <section className="card">
+        <h2 className="card-title">Welcome back, {displayName}</h2>
+        <p className="profile-detail">Here is an overview of your garage.</p>
+      </section>
 
         {loading ? (
           <section className="card">
@@ -160,8 +160,7 @@ function HomePage() {
             </section>
           </>
         )}
-      </main>
-    </>
+    </AppShell>
   )
 }
 

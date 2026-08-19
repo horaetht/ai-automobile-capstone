@@ -143,15 +143,16 @@ button:hover {
 /* ── Cards ── */
 .card {
     background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 10px;
+    border: 1px solid #e3e6ec;
+    border-radius: 12px;
     padding: 24px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
 }
 
 .card-title {
     margin-top: 0;
-    font-size: 18px;
+    font-size: 19px;
+    font-weight: 700;
     color: #222;
 }
 
@@ -159,26 +160,33 @@ button:hover {
 .profile-card {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
 }
 
 .profile-avatar {
-    width: 60px;
-    height: 60px;
+    width: 44px;
+    height: 44px;
     background-color: #1a73e8;
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: bold;
     flex-shrink: 0;
 }
 
 .profile-name {
-    margin: 0 0 4px 0;
-    font-size: 20px;
+    margin: 0 0 2px 0;
+    font-size: 18px;
+}
+
+/* Dashboard's Vehicle Overview card is a compact identity strip, not a
+   full content card -- trims .card's default 24px vertical padding. */
+section.card.profile-card {
+    padding-top: 14px;
+    padding-bottom: 14px;
 }
 
 .profile-detail {
@@ -279,8 +287,14 @@ button:hover {
 
 .telemetry-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
+}
+
+@media (max-width: 420px) {
+    .telemetry-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
 .telemetry-item {
@@ -300,7 +314,7 @@ button:hover {
 }
 
 .telemetry-value {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
     color: #1a73e8;
 }
@@ -1300,8 +1314,20 @@ button:disabled {
 
 .reminder-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 16px;
+}
+
+@media (max-width: 1100px) {
+    .reminder-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .reminder-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .reminder-toggle {
@@ -1412,7 +1438,7 @@ button:disabled {
 .obd-status-running,
 .obd-status-checking,
 .obd-status-offline {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: bold;
 }
 
@@ -1489,6 +1515,244 @@ button:disabled {
 .obd-setup-hint {
     margin: 8px 0 0;
     font-size: 13px;
+}
+
+/* ── OBD-II Connection two-column desktop composition ── */
+.obd-connection-grid {
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) minmax(260px, 1.2fr);
+    gap: var(--og-space-8);
+}
+
+.obd-connection-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--og-space-3);
+}
+
+.obd-status-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--og-space-1);
+}
+
+.obd-connection-explain {
+    padding-left: var(--og-space-8);
+    border-left: 1px solid #eee;
+}
+
+.obd-connection-explain .label {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.obd-vehicle-connection-text {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.obd-check-again-btn,
+.obd-tech-details {
+    margin-top: 0;
+}
+
+@media (max-width: 900px) {
+    .obd-connection-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .obd-connection-explain {
+        padding-left: 0;
+        padding-top: var(--og-space-4);
+        border-left: none;
+        border-top: 1px solid #eee;
+    }
+}
+
+/* ── Desktop App Shell ──
+   Spacing scale used by everything below: 4 / 8 / 12 / 16 / 24 / 32px.
+   Cards keep reusing the existing .card (10px radius, subtle border,
+   light shadow) -- it already matches this system, so it is intentionally
+   left unchanged here. */
+:root {
+    --og-space-1: 4px;
+    --og-space-2: 8px;
+    --og-space-3: 12px;
+    --og-space-4: 16px;
+    --og-space-6: 24px;
+    --og-space-8: 32px;
+    --og-sidebar-width: 208px;
+}
+
+.app-shell {
+    display: flex;
+    align-items: flex-start;
+    min-height: 100vh;
+    background-color: #f5f7fb;
+}
+
+.app-sidebar {
+    width: var(--og-sidebar-width);
+    flex-shrink: 0;
+    min-height: 100vh;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    background: linear-gradient(180deg, #0f1f3d 0%, #16294d 100%);
+    color: #b9c4de;
+    display: flex;
+    flex-direction: column;
+    padding: var(--og-space-6) 0;
+}
+
+.sidebar-brand {
+    display: block;
+    padding: 0 var(--og-space-6) var(--og-space-6);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    color: white;
+    text-decoration: none;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--og-space-2);
+    padding: 0 var(--og-space-4);
+    flex-grow: 1;
+}
+
+.sidebar-nav-link {
+    display: block;
+    padding: 12px var(--og-space-4);
+    border-radius: 8px;
+    color: #b9c4de;
+    text-decoration: none;
+    font-size: 14.5px;
+    font-weight: 500;
+    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sidebar-nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.07);
+    color: white;
+}
+
+.sidebar-nav-link.is-active {
+    background-color: #1a73e8;
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(26, 115, 232, 0.4);
+}
+
+.sidebar-footer {
+    padding: var(--og-space-4) var(--og-space-4) 0;
+    margin-top: var(--og-space-4);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    flex-direction: column;
+    gap: var(--og-space-2);
+}
+
+.sidebar-account {
+    padding: 0 var(--og-space-2);
+    font-size: 13px;
+    color: #b9c4de;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-logout-btn {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px var(--og-space-3);
+    font-size: 13px;
+    font-weight: bold;
+    text-align: left;
+    cursor: pointer;
+}
+
+.sidebar-logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
+.app-shell-main {
+    flex-grow: 1;
+    min-width: 0;
+    /* Padding lives here (not on .app-content) so the content box below
+       can be width:100% and left-anchored instead of auto-margin-centered
+       -- centering a capped-width box in the remaining viewport is what
+       produced the "narrow floating website" look at 1920px. */
+    padding: var(--og-space-6) var(--og-space-8);
+}
+
+.app-content {
+    width: 100%;
+    max-width: 1500px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--og-space-6);
+}
+
+.page-header {
+    margin-bottom: 0;
+}
+
+.page-title {
+    margin: 0 0 4px;
+    font-size: 26px;
+    font-weight: bold;
+    color: #16233f;
+}
+
+.page-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: #64708a;
+}
+
+/* ── Dashboard Top Row (My Vehicle + Live Telemetry) ──
+   ~38%/62% split via fr units rather than fixed pixel widths, so it holds
+   up cleanly from 1366px through 1920px without a hard breakpoint. */
+.dashboard-top-row {
+    display: grid;
+    grid-template-columns: minmax(300px, 2fr) minmax(380px, 3fr);
+    gap: var(--og-space-6);
+    align-items: start;
+}
+
+/* De-emphasized Quick Actions row -- deliberately not a .card so it reads
+   as a lightweight footer strip rather than competing with sidebar nav. */
+.dashboard-quick-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--og-space-4);
+    padding: var(--og-space-1) var(--og-space-2);
+}
+
+.quick-actions-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #8993a8;
+    margin-right: var(--og-space-2);
+}
+
+@media (max-width: 1100px) {
+    .dashboard-top-row {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ── Responsive tweaks ── */

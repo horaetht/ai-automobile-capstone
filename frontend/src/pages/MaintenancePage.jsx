@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import Header from '../components/Header'
+import AppShell from '../components/AppShell'
+import PageHeader from '../components/PageHeader'
 import MaintenanceTable from '../components/MaintenanceTable'
 import { useAuth } from '../context/useAuth'
 import { getVehicleById } from '../services/vehicleService'
@@ -194,58 +195,51 @@ function MaintenancePage() {
 
   if (loading) {
     return (
-      <>
-        <Header title="Maintenance Log" />
-        <main className="maintenance-layout">
-          <section className="card">
-            <p className="empty-state">Loading maintenance data…</p>
-          </section>
-        </main>
-      </>
+      <AppShell>
+        <PageHeader title="Maintenance Log" />
+        <section className="card">
+          <p className="empty-state">Loading maintenance data…</p>
+        </section>
+      </AppShell>
     )
   }
 
   if (error) {
     return (
-      <>
-        <Header title="Maintenance Log" />
-        <main className="maintenance-layout">
-          <section className="card">
-            <h2 className="card-title">Something Went Wrong</h2>
-            <p className="form-error" role="alert">
-              {error}
-            </p>
-            <button type="button" className="btn btn-secondary" onClick={handleRetry}>
-              Retry
-            </button>
-          </section>
-        </main>
-      </>
+      <AppShell>
+        <PageHeader title="Maintenance Log" />
+        <section className="card">
+          <h2 className="card-title">Something Went Wrong</h2>
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+          <button type="button" className="btn btn-secondary" onClick={handleRetry}>
+            Retry
+          </button>
+        </section>
+      </AppShell>
     )
   }
 
   if (!vehicle) {
     return (
-      <>
-        <Header title="Maintenance Log" />
-        <main className="maintenance-layout">
-          <section className="card">
-            <p className="empty-state">
-              We couldn't find a vehicle with ID "{vehicleId}". <Link to="/garage">Return to My Garage</Link>.
-            </p>
-          </section>
-        </main>
-      </>
+      <AppShell>
+        <PageHeader title="Maintenance Log" />
+        <section className="card">
+          <p className="empty-state">
+            We couldn't find a vehicle with ID "{vehicleId}". <Link to="/garage">Return to My Garage</Link>.
+          </p>
+        </section>
+      </AppShell>
     )
   }
 
   const vehicleMileage = getValidVehicleMileage(vehicle)
 
   return (
-    <>
-      <Header title="Maintenance Log" />
-      <main className="maintenance-layout">
-        <section className="card vehicle-context-card">
+    <AppShell>
+      <PageHeader title="Maintenance Log" />
+      <section className="card vehicle-context-card">
           <h2 className="card-title">Selected Vehicle</h2>
           <div className="vehicle-context-details">
             <div className="vehicle-context-item">
@@ -392,8 +386,7 @@ function MaintenancePage() {
             </Link>
           </div>
         </section>
-      </main>
-    </>
+    </AppShell>
   )
 }
 
