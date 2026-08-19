@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import Header from '../components/Header'
+import AppShell from '../components/AppShell'
+import PageHeader from '../components/PageHeader'
 import VehicleCard from '../components/VehicleCard'
 import { useAuth } from '../context/useAuth'
 import { createVehicle, deleteVehicle, getVehicles } from '../services/vehicleService'
@@ -447,11 +448,10 @@ function GaragePage() {
   }
 
   return (
-    <>
-      <Header title="My Garage" showGarageLink={false} />
-      <main className="dashboard-layout">
-        <section className="card">
-          <h2 className="card-title">Select a Vehicle</h2>
+    <AppShell>
+      <PageHeader title="My Garage" subtitle="Select a vehicle or add a new one" />
+      <section className="card">
+        <h2 className="card-title">Select a Vehicle</h2>
           <p style={{ color: '#666', fontSize: 14, marginTop: 0 }}>
             Choose a vehicle to view its dashboard and maintenance history.
           </p>
@@ -750,8 +750,7 @@ function GaragePage() {
             </button>
           </form>
         </section>
-      </main>
-    </>
+    </AppShell>
   )
 }
 

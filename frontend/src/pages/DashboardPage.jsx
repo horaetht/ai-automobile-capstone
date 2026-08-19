@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import Header from '../components/Header'
+import AppShell from '../components/AppShell'
+import PageHeader from '../components/PageHeader'
 import TelemetryCard from '../components/TelemetryCard'
 import MaintenanceReminderCard from '../components/MaintenanceReminderCard'
 import { getVehicleById } from '../services/vehicleService'
@@ -13,6 +14,20 @@ import {
 } from '../utils/maintenanceReminderEngine'
 
 const INITIAL_VISIBLE_REMINDER_COUNT = 4
+
+// Presentation-only rewording of summarizeReminders()'s status labels for the
+// dashboard's compact summary line -- keyed off `status`, not `label`, so it
+// has no effect on how reminders are counted or sorted.
+const SUMMARY_PHRASES = {
+  overdue: (count) => `${count} overdue`,
+  'due-soon': (count) => `${count} due soon`,
+  'no-history': (count) => `${count} need service history`,
+  'up-to-date': (count) => `${count} up to date`,
+}
+
+function formatSummaryEntry(entry) {
+  return SUMMARY_PHRASES[entry.status]?.(entry.count) ?? `${entry.count} ${entry.label}`
+}
 
 function DashboardPage() {
   const { vehicleId } = useParams()
@@ -105,46 +120,40 @@ function DashboardPage() {
 
   if (loading) {
     return (
-      <>
-        <Header title="Online Garage" subtitle="with AI Symptom Checker" />
-        <main className="dashboard-layout">
-          <section className="card">
-            <p className="empty-state">Loading vehicle...</p>
-          </section>
-        </main>
-      </>
+      <AppShell>
+        <PageHeader title="Vehicle Dashboard" />
+        <section className="card">
+          <p className="empty-state">Loading vehicle...</p>
+        </section>
+      </AppShell>
     )
   }
 
   if (error) {
     return (
-      <>
-        <Header title="Online Garage" subtitle="with AI Symptom Checker" />
-        <main className="dashboard-layout">
-          <section className="card">
-            <h2 className="card-title">Something Went Wrong</h2>
-            <p className="empty-state">
-              Unable to load vehicle: {error} <Link to="/garage">Return to My Garage</Link>.
-            </p>
-          </section>
-        </main>
-      </>
+      <AppShell>
+        <PageHeader title="Vehicle Dashboard" />
+        <section className="card">
+          <h2 className="card-title">Something Went Wrong</h2>
+          <p className="empty-state">
+            Unable to load vehicle: {error} <Link to="/garage">Return to My Garage</Link>.
+          </p>
+        </section>
+      </AppShell>
     )
   }
 
   if (!vehicle) {
     return (
-      <>
-        <Header title="Online Garage" subtitle="with AI Symptom Checker" />
-        <main className="dashboard-layout">
-          <section className="card">
-            <h2 className="card-title">Vehicle Not Found</h2>
-            <p className="empty-state">
-              We couldn't find a vehicle with ID "{vehicleId}". <Link to="/garage">Return to My Garage</Link>.
-            </p>
-          </section>
-        </main>
-      </>
+      <AppShell>
+        <PageHeader title="Vehicle Dashboard" />
+        <section className="card">
+          <h2 className="card-title">Vehicle Not Found</h2>
+          <p className="empty-state">
+            We couldn't find a vehicle with ID "{vehicleId}". <Link to="/garage">Return to My Garage</Link>.
+          </p>
+        </section>
+      </AppShell>
     )
   }
 
@@ -155,19 +164,18 @@ function DashboardPage() {
   const visibleReminders = showAllReminders ? sortedReminders : sortedReminders.slice(0, INITIAL_VISIBLE_REMINDER_COUNT)
 
   return (
-    <>
-      <Header title="Online Garage" subtitle="with AI Symptom Checker" />
-      <main className="dashboard-layout">
-        <section className="card profile-card">
-          <div className="profile-avatar">🚗</div>
-          <div className="profile-info">
-            <h2 className="profile-name">Vehicle Overview</h2>
-            <p className="profile-detail">
-              {vehicle.year} {vehicle.make} {vehicle.model}
-            </p>
-          </div>
-        </section>
+    <AppShell>
+      <section className="card profile-card">
+        <div className="profile-avatar">🚗</div>
+        <div className="profile-info">
+          <h2 className="profile-name">Vehicle Overview</h2>
+          <p className="profile-detail">
+            {vehicle.year} {vehicle.make} {vehicle.model}
+          </p>
+        </div>
+      </section>
 
+      <div className="dashboard-top-row">
         <section className="card vehicle-card">
           <h2 className="card-title">My Vehicle</h2>
           <div className="vehicle-details">
@@ -195,58 +203,54 @@ function DashboardPage() {
         </section>
 
         <TelemetryCard vehicle={vehicle} onSynced={refreshVehicle} />
+      </div>
 
-        <section className="card reminders-card">
-          <h2 className="card-title">Maintenance Status</h2>
-          <p className="maintenance-disclaimer">{MAINTENANCE_DISCLAIMER}</p>
-          {remindersLoading ? (
-            <p className="empty-state">Loading maintenance status...</p>
-          ) : remindersError ? (
-            <p className="form-error" role="alert">
-              Unable to load maintenance history: {remindersError}
+      <section className="card reminders-card">
+        <h2 className="card-title">Maintenance Status</h2>
+        <p className="maintenance-disclaimer">{MAINTENANCE_DISCLAIMER}</p>
+        {remindersLoading ? (
+          <p className="empty-state">Loading maintenance status...</p>
+        ) : remindersError ? (
+          <p className="form-error" role="alert">
+            Unable to load maintenance history: {remindersError}
+          </p>
+        ) : (
+          <>
+            {reminderSummary.length > 0 && (
+              <p className="reminder-summary">{reminderSummary.map(formatSummaryEntry).join(' • ')}</p>
+            )}
+            <div className="reminder-grid">
+              {visibleReminders.map((reminder) => (
+                <MaintenanceReminderCard key={reminder.key} reminder={reminder} vehicleId={vehicle.id} />
+              ))}
+            </div>
+            {hasMoreReminders && (
+              <button
+                type="button"
+                className="btn btn-secondary btn-small reminder-toggle"
+                onClick={() => setShowAllReminders((value) => !value)}
+              >
+                {showAllReminders ? 'Show Fewer' : 'View All Maintenance Items'}
+              </button>
+            )}
+            <p className="reminder-health-note">
+              Live vehicle-health monitoring such as battery and tire pressure will become available when OBD data is
+              connected.
             </p>
-          ) : (
-            <>
-              {reminderSummary.length > 0 && (
-                <p className="reminder-summary">
-                  {reminderSummary.map((entry) => `${entry.count} ${entry.label}`).join(' • ')}
-                </p>
-              )}
-              <div className="reminder-grid">
-                {visibleReminders.map((reminder) => (
-                  <MaintenanceReminderCard key={reminder.key} reminder={reminder} vehicleId={vehicle.id} />
-                ))}
-              </div>
-              {hasMoreReminders && (
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-small reminder-toggle"
-                  onClick={() => setShowAllReminders((value) => !value)}
-                >
-                  {showAllReminders ? 'Show Fewer' : 'View All Maintenance Items'}
-                </button>
-              )}
-              <p className="reminder-health-note">
-                Live vehicle-health monitoring such as battery and tire pressure will become available when OBD data
-                is connected.
-              </p>
-            </>
-          )}
-        </section>
+          </>
+        )}
+      </section>
 
-        <section className="card actions-card">
-          <h2 className="card-title">Quick Actions</h2>
-          <div className="action-buttons">
-            <Link to="/symptom-checker" className="btn btn-primary">
-              AI Symptom Checker
-            </Link>
-            <Link to={`/vehicles/${vehicle.id}/maintenance`} className="btn btn-secondary">
-              Maintenance Log
-            </Link>
-          </div>
-        </section>
-      </main>
-    </>
+      <div className="dashboard-quick-actions">
+        <span className="quick-actions-label">Quick Actions</span>
+        <Link to="/symptom-checker" className="btn btn-secondary btn-small">
+          AI Symptom Checker
+        </Link>
+        <Link to={`/vehicles/${vehicle.id}/maintenance`} className="btn btn-secondary btn-small">
+          Maintenance Log
+        </Link>
+      </div>
+    </AppShell>
   )
 }
 
